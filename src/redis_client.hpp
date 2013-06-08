@@ -52,6 +52,8 @@ public:
 	int del(const string_array& keys);
 
 	// set command
+	int scard(const string& key);
+	
 	int sadd(const string& key, const string& member);
 	int sadd(const int member_numbers, ...);
 	int sadd(const string_array& keys);
@@ -59,6 +61,8 @@ public:
 	int smembers(const string& key, string_array& arr);
 
 	int sismember(const string& key, const string& member);
+
+	int srem(const string& key, const string& member);
 
 	// hash command
 	int hincrby(const string& key, const string& field, const int amount = 1);

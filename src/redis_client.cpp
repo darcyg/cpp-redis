@@ -220,6 +220,13 @@ int client::del(const string_array& keys)
 	return execute_and_get_int_reply(cmd);
 }
 
+int client::scard(const std::string& key)
+{
+	makecmd cmd("SCARD");
+	cmd << key;
+	return execute_and_get_int_reply(cmd);
+}
+
 int client::sadd(const std::string& key, const std::string& member)
 {
 	makecmd cmd("SADD");
@@ -237,6 +244,13 @@ int client::smembers(const string& key, string_array& arr)
 int client::sismember(const std::string& key, const std::string& member)
 {
 	makecmd cmd("SISMEMBER");
+	cmd << key << member;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::srem(const std::string& key, const std::string& member)
+{
+	makecmd cmd("SREM");
 	cmd << key << member;
 	return execute_and_get_int_reply(cmd);
 }

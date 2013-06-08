@@ -58,11 +58,13 @@ gtest_main.a : gtest-all.o gtest_main.o
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-string_unittest.o : $(USER_DIR)/string_unittest.cpp $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/string_unittest.cpp
+TESTCASES = \
+	string_unittest.o \
+	set_unittest.o \
+	keys_unittest.o
 
-keys_unittest.o : $(USER_DIR)/keys_unittest.cpp $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/keys_unittest.cpp
+%.o:%.cpp
+	$(CXX)  $(CPPFLAGS) $(CXXFLAGS) -c $<
 
-redis_unittest : string_unittest.o keys_unittest.o gtest_main.a
+redis_unittest : $(TESTCASES) gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $(LDLIBS) $^ -o $@
