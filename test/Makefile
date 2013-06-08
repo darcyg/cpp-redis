@@ -16,7 +16,7 @@ LDLIBS = -L../src -lcppredis
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = redis_unittest
+TESTS = cppredis_unittest
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -66,5 +66,5 @@ TESTCASES = \
 %.o:%.cpp
 	$(CXX)  $(CPPFLAGS) $(CXXFLAGS) -c $<
 
-redis_unittest : $(TESTCASES) gtest_main.a
+cppredis_unittest : $(TESTCASES) gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $(LDLIBS) $^ -o $@

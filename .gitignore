@@ -1,0 +1,5 @@
+*.[oa]
+*.so
+*.la
+*.log
+cppredis_unittest
