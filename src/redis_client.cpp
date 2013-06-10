@@ -234,6 +234,41 @@ int client::sadd(const std::string& key, const std::string& member)
 	return execute_and_get_int_reply(cmd);
 }
 
+int client::sadd(const int member_numbers, ...)
+{
+	if (member_numbers < 1)
+		return 0;
+
+	makecmd cmd("SADD");
+	va_list ap;
+	va_start(ap, member_numbers);
+	for (int i = 0; i < member_numbers; ++i)
+	{
+		string member = va_arg(ap, char*);
+		cmd << member;
+	}
+	va_end(ap);
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::sadd(const string_array& members)
+{
+	if (members.empty())
+		return 0;
+
+	makecmd cmd("SADD");
+	for (string_array::const_iterator it = members.begin(); it != members.end(); ++it)
+		cmd << *it;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::spop(const string& key, string& member)
+{
+	makecmd cmd("SPOP");
+	cmd << key;
+	return execute_and_get_string_reply(cmd, member);
+}
+
 int client::smembers(const string& key, string_array& arr)
 {
 	makecmd cmd("SMEMBERS");

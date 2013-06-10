@@ -58,6 +58,12 @@ public:
 	int sadd(const int member_numbers, ...);
 	int sadd(const string_array& keys);
 
+	int sdiff(const string& key1, const string& key2, string_pair_vector& result_set);
+	int sdiff(const string& key1, const string_array& keys, string_pair_vector& result_set);
+	int sdiff(string_pair_vector& result_set, const string& key1, const int other_set_number, ...);
+
+	int spop(const string& key, string& member);
+
 	int smembers(const string& key, string_array& arr);
 
 	int sismember(const string& key, const string& member);
