@@ -100,26 +100,24 @@ int recv_string_array_reply(redisReply* reply, string_array& arr)
 	return elements;
 }
 
-int recv_string_pair_array_reply(redisReply* reply, const string_array& keys, 
-	string_pair_vector& key_value_pairs)
+int recv_string_map_reply(redisReply* reply, const string_array& keys, 
+	string_map& kv_map)
 {
 	int elements = 0;
-	key_value_pairs.clear();
 	reply_guard guard(reply);
 
+	kv_map.clear();
 	if (reply->type == REDIS_REPLY_ARRAY)
 	{
 		if (reply->elements > 0)
 		{
-			key_value_pairs.reserve(reply->elements);
 			for (size_t i = 0; i < reply->elements; ++i)
 			{
 				redisReply* elem = reply->element[i];
 				if (elem->type == REDIS_REPLY_STRING)
 				{
 					const string& key = keys[i];
-					string value = string(elem->str, elem->len);
-					key_value_pairs.push_back(make_pair<string, string>(key, value));
+					kv_map[key] = string(elem->str, elem->len);
 					elements++;
 				}
 				else if (elem->type == REDIS_REPLY_NIL)

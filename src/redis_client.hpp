@@ -26,12 +26,11 @@ public:
 
 	// the variable argument mset function is not binary safe.
 	bool mset(const int key_numbers, ...);
-	bool mset(const string_pair_vector& kv_pairs);
-	bool mset(const string_key_value_map& kv_map);
+	bool mset(const string_map& kv_map);
 
 	int get(const string& key, string& value);
-	int mget(const string_array& keys, string_pair_vector& kv_pairs);
-	int mget(string_pair_vector& kv_pairs, const int key_numbers, ...);
+	int mget(const string_array& keys, string_map& kv_map);
+	int mget(string_map& kv_map, const int key_numbers, ...);
 
 	int exists(const string& key);
 
@@ -59,10 +58,6 @@ public:
 	int sadd(const int member_numbers, ...);
 	int sadd(const string_array& keys);
 
-	int sdiff(const string& key1, const string& key2, string_pair_vector& result_set);
-	int sdiff(const string& key1, const string_array& keys, string_pair_vector& result_set);
-	int sdiff(string_pair_vector& result_set, const string& key1, const int other_set_number, ...);
-
 	int spop(const string& key, string& member);
 
 	int smembers(const string& key, string_array& arr);
@@ -81,8 +76,8 @@ private:
 	int execute_and_get_int_reply(const rediscmd& cmd);
 	int execute_and_get_string_reply(const rediscmd& cmd, string& str);
 	int execute_and_get_string_array_reply(const rediscmd& cmd, string_array& arr);
-	int execute_and_get_string_pair_array_reply(const rediscmd& cmd, const string_array& keys, 
-		string_pair_vector& kv_pair_array);
+	int execute_and_get_string_map_reply(const rediscmd& cmd, const string_array& keys, 
+		string_map& kv_map);
 
 	connection_pool* pool_;
 };

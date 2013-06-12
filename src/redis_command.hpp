@@ -26,14 +26,14 @@ struct rediscmd {
 	void shallow_assign(const string_array& args)
 	{
 		argc = args.size();
-    	argv = new char*[argc];
-    	argvlen = new size_t[argc];
-    	for (int i = 0; i < argc; ++i)
-    	{
-    		const string& arg = args[i];
-    		argv[i] = (char*)arg.c_str();
-    		argvlen[i] = arg.size();
-    	}
+		argv = new char*[argc];
+		argvlen = new size_t[argc];
+		for (int i = 0; i < argc; ++i)
+		{
+			const string& arg = args[i];
+			argv[i] = (char*)arg.c_str();
+			argvlen[i] = arg.size();
+		}
 	}
 
 	int argc;
@@ -75,9 +75,9 @@ public:
 		return *this;
 	}
 
-	makecmd& operator << (const string_key_value_map& kv_map)
+	makecmd& operator << (const string_map& kv_map)
 	{
-	 	for (string_key_value_map::const_iterator it = kv_map.begin(); it != kv_map.end(); ++it)
+	 	for (string_map::const_iterator it = kv_map.begin(); it != kv_map.end(); ++it)
 	 	{
 	 		args_.push_back(it->first);
 			args_.push_back(it->second);
@@ -85,11 +85,11 @@ public:
 		return *this;
 	 }
 
-    operator const rediscmd& ()
-    {
-    	cmd_.shallow_assign(args_);
+	operator const rediscmd& ()
+	{
+		cmd_.shallow_assign(args_);
     	return cmd_;
-    }
+	}
 
 private:
 	string_array args_;

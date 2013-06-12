@@ -61,11 +61,11 @@ int client::execute_and_get_string_array_reply(const rediscmd& cmd, string_array
 	return recv_string_array_reply(reply, arr);
 }
 
-int client::execute_and_get_string_pair_array_reply(const rediscmd& cmd, const string_array& keys, 
-	string_pair_vector& kv_pair_array)
+int client::execute_and_get_string_map_reply(const rediscmd& cmd, const string_array& keys, 
+	string_map& kv_map)
 {
 	redisReply* reply = execute(cmd);
-	return recv_string_pair_array_reply(reply, keys, kv_pair_array);
+	return recv_string_map_reply(reply, keys, kv_map);
 }
 
 bool client::set(const string& key, const string& value)
@@ -115,15 +115,7 @@ bool client::mset(const int key_numbers, ...)
 	return execute_and_get_status_reply(cmd);
 }
 
-bool client::mset(const string_pair_vector& kv_pairs)
-{
-	makecmd cmd("MSET");
-	for (string_pair_vector::const_iterator it = kv_pairs.begin(); it != kv_pairs.end(); ++it)
-		cmd << it->first << it->second;
-	return execute_and_get_status_reply(cmd);
-}
-
-bool client::mset(const string_key_value_map& kv_map)
+bool client::mset(const string_map& kv_map)
 {
 	makecmd cmd("MSET");
 	cmd << kv_map;
@@ -137,14 +129,14 @@ int client::get(const std::string& key, string& value)
 	return execute_and_get_string_reply(cmd, value);
 }
 
-int client::mget(const string_array& keys, string_pair_vector& kv_pairs)
+int client::mget(const string_array& keys, string_map& kv_map)
 {
 	makecmd cmd("MGET");
 	cmd << keys;
-	return execute_and_get_string_pair_array_reply(cmd, keys, kv_pairs);
+	return execute_and_get_string_map_reply(cmd, keys, kv_map);
 }
 
-int client::mget(string_pair_vector& kv_pairs, const int key_numbers, ...)
+int client::mget(string_map& kv_map, const int key_numbers, ...)
 {
 	makecmd cmd("MGET");
 	string_array keys;
@@ -154,12 +146,12 @@ int client::mget(string_pair_vector& kv_pairs, const int key_numbers, ...)
 	for (int i = 0; i < key_numbers; ++i)
 	{
 		string key = va_arg(ap, char*);
-		cmd << key;
 		keys.push_back(key);
 	}
 	va_end(ap);
 
-	return execute_and_get_string_pair_array_reply(cmd, keys, kv_pairs);
+	cmd << keys;
+	return execute_and_get_string_map_reply(cmd, keys, kv_map);
 }
 
 int client::exists(const std::string& key)
