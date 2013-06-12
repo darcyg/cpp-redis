@@ -27,6 +27,7 @@ public:
 	// the variable argument mset function is not binary safe.
 	bool mset(const int key_numbers, ...);
 	bool mset(const string_pair_vector& kv_pairs);
+	bool mset(const string_key_value_map& kv_map);
 
 	int get(const string& key, string& value);
 	int mget(const string_array& keys, string_pair_vector& kv_pairs);

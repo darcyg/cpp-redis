@@ -123,6 +123,13 @@ bool client::mset(const string_pair_vector& kv_pairs)
 	return execute_and_get_status_reply(cmd);
 }
 
+bool client::mset(const string_key_value_map& kv_map)
+{
+	makecmd cmd("MSET");
+	cmd << kv_map;
+	return execute_and_get_status_reply(cmd);
+}
+
 int client::get(const std::string& key, string& value)
 {
 	makecmd cmd("GET");
@@ -133,8 +140,7 @@ int client::get(const std::string& key, string& value)
 int client::mget(const string_array& keys, string_pair_vector& kv_pairs)
 {
 	makecmd cmd("MGET");
-	for (string_array::const_iterator it = keys.begin(); it != keys.end(); ++it)
-		cmd << *it;
+	cmd << keys;
 	return execute_and_get_string_pair_array_reply(cmd, keys, kv_pairs);
 }
 
@@ -215,8 +221,7 @@ int client::del(const string& key)
 int client::del(const string_array& keys)
 {
 	makecmd cmd("DEL");
-	for (string_array::const_iterator it = keys.begin(); it != keys.end(); ++it)
-		cmd<< *it;
+	cmd << keys;
 	return execute_and_get_int_reply(cmd);
 }
 
@@ -257,8 +262,7 @@ int client::sadd(const string_array& members)
 		return 0;
 
 	makecmd cmd("SADD");
-	for (string_array::const_iterator it = members.begin(); it != members.end(); ++it)
-		cmd << *it;
+	cmd << members;
 	return execute_and_get_int_reply(cmd);
 }
 

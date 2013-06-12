@@ -4,6 +4,7 @@
 #include <utility>
 #include <string>
 #include <vector>
+#include <map>
 using namespace std;
 
 namespace redis {
@@ -16,6 +17,8 @@ namespace redis {
 	typedef pair<string, string> string_pair;
 
 	typedef vector<string_pair> string_pair_vector;
+
+	typedef map<string, string> string_key_value_map;
 }
 
 #endif
