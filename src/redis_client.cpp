@@ -61,6 +61,12 @@ int client::execute_and_get_string_array_reply(const rediscmd& cmd, string_array
 	return recv_string_array_reply(reply, arr);
 }
 
+int client::execute_and_get_string_set_reply(const rediscmd& cmd, string_set& s)
+{
+	redisReply* reply = execute(cmd);
+	return recv_string_set_reply(reply, s);
+}
+
 int client::execute_and_get_string_map_reply(const rediscmd& cmd, const string_array& keys, 
 	string_map& kv_map)
 {
@@ -262,11 +268,11 @@ int client::spop(const string& key, string& member)
 	return execute_and_get_string_reply(cmd, member);
 }
 
-int client::smembers(const string& key, string_array& arr)
+int client::smembers(const string& key, string_set& members)
 {
 	makecmd cmd("SMEMBERS");
 	cmd << key;
-	return execute_and_get_string_array_reply(cmd, arr);
+	return execute_and_get_string_set_reply(cmd, members);
 }
 
 int client::sismember(const std::string& key, const std::string& member)

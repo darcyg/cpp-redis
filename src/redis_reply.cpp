@@ -100,6 +100,33 @@ int recv_string_array_reply(redisReply* reply, string_array& arr)
 	return elements;
 }
 
+int recv_string_set_reply(redisReply* reply, string_set& s)
+{
+	int elements = 0;
+	s.clear();
+	reply_guard guard(reply);
+
+	if (reply->type == REDIS_REPLY_ARRAY)
+	{
+		if (reply->elements > 0)
+		{
+			for (size_t i = 0; i < reply->elements; ++i)
+			{
+				redisReply* elem = reply->element[i];
+				if (elem->type == REDIS_REPLY_STRING)
+				{
+					s.insert(string(elem->str, elem->len));
+					elements++;
+				}
+			}
+		}
+	}
+	else
+		throw_redis_exception(reply);
+
+	return elements;
+}
+
 int recv_string_map_reply(redisReply* reply, const string_array& keys, 
 	string_map& kv_map)
 {

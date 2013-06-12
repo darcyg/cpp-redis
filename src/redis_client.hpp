@@ -60,7 +60,7 @@ public:
 
 	int spop(const string& key, string& member);
 
-	int smembers(const string& key, string_array& arr);
+	int smembers(const string& key, string_set& members);
 
 	int sismember(const string& key, const string& member);
 
@@ -76,6 +76,7 @@ private:
 	int execute_and_get_int_reply(const rediscmd& cmd);
 	int execute_and_get_string_reply(const rediscmd& cmd, string& str);
 	int execute_and_get_string_array_reply(const rediscmd& cmd, string_array& arr);
+	int execute_and_get_string_set_reply(const rediscmd& cmd, string_set& s);
 	int execute_and_get_string_map_reply(const rediscmd& cmd, const string_array& keys, 
 		string_map& kv_map);
 

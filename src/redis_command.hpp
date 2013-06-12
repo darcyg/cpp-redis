@@ -77,13 +77,13 @@ public:
 
 	makecmd& operator << (const string_map& kv_map)
 	{
-	 	for (string_map::const_iterator it = kv_map.begin(); it != kv_map.end(); ++it)
-	 	{
-	 		args_.push_back(it->first);
+		for (string_map::const_iterator it = kv_map.begin(); it != kv_map.end(); ++it)
+		{
+			args_.push_back(it->first);
 			args_.push_back(it->second);
-	 	}
+		}
 		return *this;
-	 }
+	}
 
 	operator const rediscmd& ()
 	{

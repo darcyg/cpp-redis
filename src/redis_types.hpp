@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 #include <cstdarg>
 using namespace std;
@@ -14,6 +15,7 @@ namespace redis {
 
 	typedef vector<string> string_array;
 	typedef map<string, string> string_map;
+	typedef set<string> string_set;
 
 	#define arguments_to_string_array(num, strs) \
 		va_list ap; \

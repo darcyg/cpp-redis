@@ -14,6 +14,8 @@ namespace redis {
 
 	int recv_string_array_reply(redisReply* reply, string_array& arr);
 
+	int recv_string_set_reply(redisReply* reply, string_set& s);
+
 	int recv_string_map_reply(redisReply* reply, const string_array& keys, 
 		string_map& kv_map);
 }
