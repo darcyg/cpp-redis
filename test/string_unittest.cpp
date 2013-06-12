@@ -33,5 +33,6 @@ TEST_F(StringTest, mgetmset)
 	keys.push_back("testkey2");
 	keys.push_back("testkey5");
 	EXPECT_EQ(3, rc_.mget(keys, kv_map));
-}
 
+	EXPECT_EQ(2, rc_.del(2, "testkey1", "testkey2"));
+}

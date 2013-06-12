@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <cstdarg>
 using namespace std;
 
 namespace redis {
@@ -13,6 +14,27 @@ namespace redis {
 
 	typedef vector<string> string_array;
 	typedef map<string, string> string_map;
+
+	#define arguments_to_string_array(num, strs) \
+		va_list ap; \
+		va_start(ap, num); \
+		for (int i = 0; i < num; ++i) \
+		{ \
+			string arg = va_arg(ap, char*); \
+			strs.push_back(arg); \
+		} \
+		va_end(ap);
+
+	#define pair_arguments_to_string_array(num, strs) \
+		const int realnum = num * 2; \
+		va_list ap; \
+		va_start(ap, num); \
+		for (int i = 0; i < realnum; ++i) \
+		{ \
+			string arg = va_arg(ap, char*); \
+			strs.push_back(arg); \
+		} \
+		va_end(ap);
 }
 
 #endif

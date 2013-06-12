@@ -102,16 +102,15 @@ int client::setnx(const string& key, const string& value)
 	return execute_and_get_int_reply(cmd);
 }
 
-bool client::mset(const int key_numbers, ...)
+bool client::mset(const int num, ...)
 {
-	makecmd m("MSET");
-	int num = key_numbers * 2;
-	va_list ap;
-	va_start(ap, key_numbers);
-	for (int i = 0; i < num; ++i)
-		m << va_arg(ap, char*);
-	va_end(ap);
-	const rediscmd& cmd = m;
+	if (num < 1)
+		return false;
+
+	makecmd cmd("MSET");
+	string_array kv_pairs;
+	pair_arguments_to_string_array(num, kv_pairs);
+	cmd << kv_pairs;
 	return execute_and_get_status_reply(cmd);
 }
 
@@ -136,20 +135,11 @@ int client::mget(const string_array& keys, string_map& kv_map)
 	return execute_and_get_string_map_reply(cmd, keys, kv_map);
 }
 
-int client::mget(string_map& kv_map, const int key_numbers, ...)
+int client::mget(string_map& kv_map, const int num, ...)
 {
 	makecmd cmd("MGET");
 	string_array keys;
-
-	va_list ap;
-	va_start(ap, key_numbers);
-	for (int i = 0; i < key_numbers; ++i)
-	{
-		string key = va_arg(ap, char*);
-		keys.push_back(key);
-	}
-	va_end(ap);
-
+	arguments_to_string_array(num, keys);
 	cmd << keys;
 	return execute_and_get_string_map_reply(cmd, keys, kv_map);
 }
@@ -210,6 +200,18 @@ int client::del(const string& key)
 	return execute_and_get_int_reply(cmd);
 }
 
+int client::del(const int num, ...)
+{
+	if (num < 1)
+		return 0;
+	
+	string_array keys;
+	makecmd cmd("DEL");
+	arguments_to_string_array(num, keys);
+	cmd << keys;
+	return execute_and_get_int_reply(cmd);
+}
+
 int client::del(const string_array& keys)
 {
 	makecmd cmd("DEL");
@@ -231,20 +233,15 @@ int client::sadd(const std::string& key, const std::string& member)
 	return execute_and_get_int_reply(cmd);
 }
 
-int client::sadd(const int member_numbers, ...)
+int client::sadd(const int num, ...)
 {
-	if (member_numbers < 1)
+	if (num < 1)
 		return 0;
 
 	makecmd cmd("SADD");
-	va_list ap;
-	va_start(ap, member_numbers);
-	for (int i = 0; i < member_numbers; ++i)
-	{
-		string member = va_arg(ap, char*);
-		cmd << member;
-	}
-	va_end(ap);
+	string_array members;
+	arguments_to_string_array(num, members);
+	cmd << members;
 	return execute_and_get_int_reply(cmd);
 }
 

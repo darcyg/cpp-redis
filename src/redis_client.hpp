@@ -48,7 +48,7 @@ public:
 	int keys(const string& pattern, string_array& arr);
 
 	int del(const string& key);
-
+	int del(const int num, ...);
 	int del(const string_array& keys);
 
 	// set command

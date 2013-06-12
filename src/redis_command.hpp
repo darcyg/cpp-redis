@@ -88,7 +88,7 @@ public:
 	operator const rediscmd& ()
 	{
 		cmd_.shallow_assign(args_);
-    	return cmd_;
+		return cmd_;
 	}
 
 private:
