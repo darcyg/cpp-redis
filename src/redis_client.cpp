@@ -261,6 +261,30 @@ int client::sadd(const string& key, const string_array& members)
 	return execute_and_get_int_reply(cmd);
 }
 
+int client::sdiff(const string_array& keys, string_set& s)
+{
+	s.clear();
+	if (keys.empty())
+		return 0;
+
+	makecmd cmd("SDIFF");
+	cmd << keys;
+	return execute_and_get_string_set_reply(cmd, s);
+}
+
+int client::sdiff(string_set& s, const int num, ...)
+{
+	s.clear();
+	if (num < 1)
+		return false;
+
+	makecmd cmd("SDIFF");
+	string_array keys;
+	arguments_to_string_array(num, keys);
+	cmd << keys;
+	return execute_and_get_string_set_reply(cmd, s);
+}
+
 int client::spop(const string& key, string& member)
 {
 	makecmd cmd("SPOP");

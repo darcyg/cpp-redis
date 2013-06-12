@@ -58,6 +58,9 @@ public:
 	int sadd(const string& key, const int num, ...);
 	int sadd(const string& key, const string_array& members);
 
+	int sdiff(const string_array& keys, string_set& s);
+	int sdiff(string_set& s, const int num, ...);
+
 	int spop(const string& key, string& member);
 
 	int smembers(const string& key, string_set& members);

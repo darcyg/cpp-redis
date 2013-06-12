@@ -21,3 +21,23 @@ TEST_F(SetTest, smember)
 	EXPECT_EQ((size_t)1, members.count("value1"));
 	rc_.del("skey");
 }
+
+TEST_F(SetTest, sdiff)
+{
+	EXPECT_EQ(4, rc_.sadd("key1", 4, "a", "b", "c", "d"));
+	EXPECT_EQ(1, rc_.sadd("key2", "c"));
+	EXPECT_EQ(3, rc_.sadd("key3", 3, "a", "c", "e"));
+
+	redis::string_set members;
+	EXPECT_EQ(2, rc_.sdiff(members, 3, "key1", "key2", "key3"));
+	EXPECT_EQ((size_t)1, members.count("b"));
+	EXPECT_EQ((size_t)1, members.count("d"));
+
+	redis::string_array keys;
+	keys.push_back("key1");
+	keys.push_back("key2");
+	keys.push_back("key3");
+	EXPECT_EQ(2, rc_.sdiff(keys, members));
+
+	rc_.del(3, "key1", "key2", "key3");
+}

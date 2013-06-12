@@ -46,7 +46,6 @@ public:
 	explicit makecmd(const string& cmdname)
 	{
 		args_.push_back(cmdname);
-
 	}
 
 	~makecmd()
