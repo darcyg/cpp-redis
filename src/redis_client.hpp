@@ -25,12 +25,12 @@ public:
 	int setnx(const string& key, const string& value);
 
 	// the variable argument mset function is not binary safe.
-	bool mset(const int key_numbers, ...);
+	bool mset(const int pair_num, ...);
 	bool mset(const string_map& kv_map);
 
 	int get(const string& key, string& value);
 	int mget(const string_array& keys, string_map& kv_map);
-	int mget(string_map& kv_map, const int key_numbers, ...);
+	int mget(string_map& kv_map, const int num, ...);
 
 	int exists(const string& key);
 
@@ -55,8 +55,8 @@ public:
 	int scard(const string& key);
 	
 	int sadd(const string& key, const string& member);
-	int sadd(const int member_numbers, ...);
-	int sadd(const string_array& keys);
+	int sadd(const string& key, const int num, ...);
+	int sadd(const string& key, const string_array& members);
 
 	int spop(const string& key, string& member);
 

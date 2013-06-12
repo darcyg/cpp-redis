@@ -102,14 +102,14 @@ int client::setnx(const string& key, const string& value)
 	return execute_and_get_int_reply(cmd);
 }
 
-bool client::mset(const int num, ...)
+bool client::mset(const int pair_num, ...)
 {
-	if (num < 1)
+	if (pair_num < 1)
 		return false;
 
 	makecmd cmd("MSET");
 	string_array kv_pairs;
-	pair_arguments_to_string_array(num, kv_pairs);
+	pair_arguments_to_string_array(pair_num, kv_pairs);
 	cmd << kv_pairs;
 	return execute_and_get_status_reply(cmd);
 }
@@ -233,7 +233,7 @@ int client::sadd(const std::string& key, const std::string& member)
 	return execute_and_get_int_reply(cmd);
 }
 
-int client::sadd(const int num, ...)
+int client::sadd(const string& key, const int num, ...)
 {
 	if (num < 1)
 		return 0;
@@ -241,17 +241,17 @@ int client::sadd(const int num, ...)
 	makecmd cmd("SADD");
 	string_array members;
 	arguments_to_string_array(num, members);
-	cmd << members;
+	cmd << key << members;
 	return execute_and_get_int_reply(cmd);
 }
 
-int client::sadd(const string_array& members)
+int client::sadd(const string& key, const string_array& members)
 {
 	if (members.empty())
 		return 0;
 
 	makecmd cmd("SADD");
-	cmd << members;
+	cmd << key << members;
 	return execute_and_get_int_reply(cmd);
 }
 

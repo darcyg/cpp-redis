@@ -25,11 +25,11 @@ namespace redis {
 		} \
 		va_end(ap);
 
-	#define pair_arguments_to_string_array(num, strs) \
-		const int realnum = num * 2; \
+	#define pair_arguments_to_string_array(pair_num, strs) \
+		const int num = pair_num * 2; \
 		va_list ap; \
-		va_start(ap, num); \
-		for (int i = 0; i < realnum; ++i) \
+		va_start(ap, pair_num); \
+		for (int i = 0; i < num; ++i) \
 		{ \
 			string arg = va_arg(ap, char*); \
 			strs.push_back(arg); \
