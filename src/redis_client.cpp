@@ -108,6 +108,13 @@ int client::setnx(const string& key, const string& value)
 	return execute_and_get_int_reply(cmd);
 }
 
+bool client::mset(const string_map& kv_map)
+{
+	makecmd cmd("MSET");
+	cmd << kv_map;
+	return execute_and_get_status_reply(cmd);
+}
+
 bool client::mset(const int pair_num, ...)
 {
 	if (pair_num < 1)
@@ -117,13 +124,6 @@ bool client::mset(const int pair_num, ...)
 	string_array kv_pairs;
 	pair_arguments_to_string_array(pair_num, kv_pairs);
 	cmd << kv_pairs;
-	return execute_and_get_status_reply(cmd);
-}
-
-bool client::mset(const string_map& kv_map)
-{
-	makecmd cmd("MSET");
-	cmd << kv_map;
 	return execute_and_get_status_reply(cmd);
 }
 
@@ -143,11 +143,9 @@ int client::mget(const string_array& keys, string_map& kv_map)
 
 int client::mget(string_map& kv_map, const int num, ...)
 {
-	makecmd cmd("MGET");
 	string_array keys;
 	arguments_to_string_array(num, keys);
-	cmd << keys;
-	return execute_and_get_string_map_reply(cmd, keys, kv_map);
+	return mget(keys, kv_map);
 }
 
 int client::exists(const std::string& key)
@@ -206,23 +204,18 @@ int client::del(const string& key)
 	return execute_and_get_int_reply(cmd);
 }
 
-int client::del(const int num, ...)
-{
-	if (num < 1)
-		return 0;
-	
-	string_array keys;
-	makecmd cmd("DEL");
-	arguments_to_string_array(num, keys);
-	cmd << keys;
-	return execute_and_get_int_reply(cmd);
-}
-
 int client::del(const string_array& keys)
 {
 	makecmd cmd("DEL");
 	cmd << keys;
 	return execute_and_get_int_reply(cmd);
+}
+
+int client::del(const int num, ...)
+{
+	string_array keys;
+	arguments_to_string_array(num, keys);
+	return del(keys);
 }
 
 int client::scard(const std::string& key)
@@ -239,18 +232,6 @@ int client::sadd(const std::string& key, const std::string& member)
 	return execute_and_get_int_reply(cmd);
 }
 
-int client::sadd(const string& key, const int num, ...)
-{
-	if (num < 1)
-		return 0;
-
-	makecmd cmd("SADD");
-	string_array members;
-	arguments_to_string_array(num, members);
-	cmd << key << members;
-	return execute_and_get_int_reply(cmd);
-}
-
 int client::sadd(const string& key, const string_array& members)
 {
 	if (members.empty())
@@ -259,6 +240,12 @@ int client::sadd(const string& key, const string_array& members)
 	makecmd cmd("SADD");
 	cmd << key << members;
 	return execute_and_get_int_reply(cmd);
+}
+
+int client::sadd(const string& key, const int num, ...)
+{
+	string_array members;
+	return sadd(key, members);
 }
 
 int client::sdiff(const string_array& keys, string_set& s)
@@ -274,22 +261,55 @@ int client::sdiff(const string_array& keys, string_set& s)
 
 int client::sdiff(string_set& s, const int num, ...)
 {
-	s.clear();
-	if (num < 1)
-		return false;
-
-	makecmd cmd("SDIFF");
 	string_array keys;
 	arguments_to_string_array(num, keys);
+	return sdiff(keys, s);
+}
+
+int client::sdiffstore(const string& destination, const string_array& keys)
+{
+	makecmd cmd("SDIFFSTORE");
+	cmd << destination << keys;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::sdiffstore(const string& destination, const int num, ...)
+{
+	string_array keys;
+	arguments_to_string_array(num, keys);
+	return sdiffstore(destination, keys);
+}
+
+int client::sinter(const string_array& keys, string_set& s)
+{
+	s.clear();
+	if (keys.empty())
+		return 0;
+
+	makecmd cmd("SINTER");
 	cmd << keys;
 	return execute_and_get_string_set_reply(cmd, s);
 }
 
-int client::spop(const string& key, string& member)
+int client::sinter(string_set& s, const int num, ...)
 {
-	makecmd cmd("SPOP");
-	cmd << key;
-	return execute_and_get_string_reply(cmd, member);
+	string_array keys;
+	arguments_to_string_array(num, keys);
+	return sinter(keys, s);
+}
+
+int client::sinterstore(const string& destination, const string_array& keys)
+{
+	makecmd cmd("SINTERSTORE");
+	cmd << destination << keys;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::sinterstore(const string& destination, const int num, ...)
+{
+	string_array keys;
+	arguments_to_string_array(num, keys);
+	return sinterstore(destination, keys);
 }
 
 int client::smembers(const string& key, string_set& members)
@@ -306,11 +326,64 @@ int client::sismember(const std::string& key, const std::string& member)
 	return execute_and_get_int_reply(cmd);
 }
 
+int client::smove(const string& source, const string& destination, const string& member)
+{
+	makecmd cmd("SMOVE");
+	cmd << source << destination << member;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::spop(const string& key, string& member)
+{
+	makecmd cmd("SPOP");
+	cmd << key;
+	return execute_and_get_string_reply(cmd, member);
+}
+
+int client::srandmember(const string& key, const int count, string_array& members)
+{
+	makecmd cmd("SRANDMEMBER");
+	cmd << key << count;
+	return execute_and_get_string_array_reply(cmd, members);
+}
+
 int client::srem(const std::string& key, const std::string& member)
 {
 	makecmd cmd("SREM");
 	cmd << key << member;
 	return execute_and_get_int_reply(cmd);
+}
+
+int client::sunion(const string_array& keys, string_set& s)
+{
+	s.clear();
+	if (keys.empty())
+		return 0;
+
+	makecmd cmd("SUNION");
+	cmd << keys;
+	return execute_and_get_string_set_reply(cmd, s);
+}
+
+int client::sunion(string_set& s, const int num, ...)
+{
+	string_array keys;
+	arguments_to_string_array(num, keys);
+	return sdiff(keys, s);
+}
+
+int client::sunionstore(const string& destination, const string_array& keys)
+{
+	makecmd cmd("SUNIONSTORE");
+	cmd << destination << keys;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::sunionstore(const string& destination, const int num, ...)
+{
+	string_array keys;
+	arguments_to_string_array(num, keys);
+	return sunionstore(destination, keys);
 }
 
 int client::hincrby(const std::string& key, const std::string& field, const int amount)

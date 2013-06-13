@@ -61,13 +61,32 @@ public:
 	int sdiff(const string_array& keys, string_set& s);
 	int sdiff(string_set& s, const int num, ...);
 
-	int spop(const string& key, string& member);
+	int sdiffstore(const string& destination, const string_array& keys);
+	int sdiffstore(const string& destination, const int num, ...);
+
+	int sinter(const string_array& keys, string_set& s);
+	int sinter(string_set& s, const int num, ...);
+
+	int sinterstore(const string& destination, const string_array& keys);
+	int sinterstore(const string& destination, const int num, ...);
 
 	int smembers(const string& key, string_set& members);
 
 	int sismember(const string& key, const string& member);
 
+	int smove(const string& source, const string& destination, const string& member);
+
+	int spop(const string& key, string& member);
+
+	int srandmember(const string& key, const int count, string_array& members);
+
 	int srem(const string& key, const string& member);
+
+	int sunion(const string_array& keys, string_set& s);
+	int sunion(string_set& s, const int num, ...);
+
+	int sunionstore(const string& destination, const string_array& keys);
+	int sunionstore(const string& destination, const int num, ...);
 
 	// hash command
 	int hincrby(const string& key, const string& field, const int amount = 1);
