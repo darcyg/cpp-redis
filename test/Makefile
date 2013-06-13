@@ -4,15 +4,16 @@ GTEST_DIR = ../deps/gtest-1.6.0
 
 # Where to find user code.
 USER_DIR = .
-CPP_REDIS_DIR = ../src
+CPPREDIS_DIR = ../src
+DEPS_DIR = ../deps
 
 # Flags passed to the preprocessor.
-CPPFLAGS += -I$(GTEST_DIR)/include -I$(CPP_REDIS_DIR)
+CPPFLAGS += -I$(GTEST_DIR)/include -I$(DEPS_DIR) -I$(CPPREDIS_DIR)
 
 # Flags passed to the C++ compiler.
 CXXFLAGS += -g -Wall -Wextra
 
-LDLIBS = -L../src -lcppredis
+LDLIBS = -L$(CPPREDIS_DIR) -lcppredis $(DEPS_DIR)/hiredis/libhiredis.a
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
@@ -67,4 +68,4 @@ TESTCASES = \
 	$(CXX)  $(CPPFLAGS) $(CXXFLAGS) -c $<
 
 cppredis_unittest : $(TESTCASES) gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $(LDLIBS) $^ -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -lpthread $(LDLIBS) -o $@

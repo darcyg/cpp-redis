@@ -1,4 +1,4 @@
-SUBDIRS = deps src test
+SUBDIRS = hiredis
 
 all clean: 
 	make $(SUBDIRS) TARGET=$@

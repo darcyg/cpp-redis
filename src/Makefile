@@ -1,12 +1,13 @@
-LIBS = libcppredis.so
+LIBS = libcppredis.a
 RM = rm
 CCC = g++
+AR = ar
 
-CDEBUGFLAGS =  -g -fPIC
-LDOPTIONS = -shared
+CDEBUGFLAGS =  -g
+LDOPTIONS = 
 
-ALLINCLUDES = -I../deps/hiredis
-LDLIBS = -L../deps/hiredis/ -lhiredis
+ALLINCLUDES = -I../deps
+LDLIBS = ../deps/hiredis/libhiredis.a
 
 CCFLAGS = $(CDEBUGFLAGS) $(ALLINCLUDES)
 
@@ -25,7 +26,7 @@ build: $(LIBS)
 
 $(LIBS): $(OBJS)
 	$(RM) -f $@
-	$(CCC) -o $@ $(OBJS) $(LDOPTIONS) $(LDLIBS)
+	$(AR) -cru $@ $^
 
 %.o:%.cpp
 	$(CCC) $(CCFLAGS) -c $<
