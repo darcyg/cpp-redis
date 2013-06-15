@@ -10,7 +10,7 @@ namespace redis {
 class connection_pool {
 public:
 	connection_pool(const string& host, const int port, const int db,
-			const int size = 10, const int max_size = 20);
+			const int size = 5, const int max_size = 10);
 	~connection_pool();
 
 	int initialize();

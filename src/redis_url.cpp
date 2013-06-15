@@ -4,63 +4,74 @@
 
 namespace redis {
 
-#define REDIS_SCHEME "redis"
+#define REDIS_SCHEME "redis"	
 
 /*
  * <scheme>://<netloc>/<path>;<params>?<query>#<fragment>
  */
-url parse_url(const string& in)
+bool parse_url(const string& in, url& u)
 {
-	url ret;
+	// check redis scheme
+	size_t pos = in.find("://");
+	if (pos == string::npos)
+		return false;
 
-	do {
-		string remain = in;
-		// get scheme
-		size_t pos = remain.find("://");
+	string scheme = in.substr(0, pos);
+	if (strcasecmp(REDIS_SCHEME, scheme.c_str()) != 0)
+		return false;
+
+	// get netloc
+	string remain = in.substr(pos + 3);
+	string netloc;
+	pos = remain.find('/');
+	if (pos == string::npos)
+	{
+		netloc = remain;
+		remain = "";
+	}
+	else
+	{
+		netloc = remain.substr(0, pos);
+		remain = remain.substr(pos + 1);
+	}
+
+	// get username & password from netloc
+	string host;
+	pos = netloc.find('@');
+	if (pos != string::npos)
+	{
+		string userinfo = netloc.substr(0, pos);
+		netloc.erase(0, pos + 1);
+		pos = userinfo.find(':');
 		if (pos == string::npos)
-			break;
-		ret.scheme = remain.substr(0, pos);
-		if (strcasecmp(REDIS_SCHEME, ret.scheme.c_str()) != 0)
-			break;
+			return false;
+		u.password = userinfo.substr(pos + 1);
+	}
 
-		// get netloc
-		remain.erase(0, pos + 3);
-		pos = remain.find('/');
-		if (pos == string::npos)
-			break;
-		string netloc = remain.substr(0, pos);
+	// get host port
+	pos = netloc.find(':');
+	if (pos == string::npos)
+		return false;
+	u.host = netloc.substr(0, pos);
+	u.port = atoi(netloc.substr(pos + 1).c_str());
 
-		// get path
-		remain.erase(0, pos + 1);
+	// get db
+	if (!remain.empty())
+	{
 		pos = remain.find('?');
 		string path;
 		if (pos == string::npos)
 			path = remain;
 		else
 			path = remain.substr(0, pos);
-		ret.db = atoi(path.c_str());
 
-		// get username & password from netloc
-		pos = netloc.find(':');
-		if (pos == string::npos)
-			break;
-		ret.username = netloc.substr(0, pos);
+		if (path.empty())
+			u.db = 0;
+		else
+			u.db = atoi(path.c_str());
+	}
 
-		netloc.erase(0, pos + 1);
-		pos = netloc.find('@');
-		if (pos == string::npos)
-			break;
-		ret.password = netloc.substr(0, pos);
-
-		netloc.erase(0, pos + 1);
-		pos = netloc.find(':');
-		if (pos == string::npos)
-			break;
-		ret.host = netloc.substr(0, pos);
-		ret.port = atoi(netloc.substr(pos + 1).c_str());
-	} while (0);
-
-	return ret;
+	return true;
 }
 
 }

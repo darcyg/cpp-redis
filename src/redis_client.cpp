@@ -2,6 +2,7 @@
 #include "redis_command.hpp"
 #include "redis_reply.hpp"
 #include "redis_exception.hpp"
+#include "redis_url.hpp"
 
 namespace redis {
 
@@ -19,6 +20,15 @@ int client::connect(const string& host, const int port, const int db,
 {
 	pool_ = new connection_pool(host, port, db, pool_size, max_pool_size);
 	return pool_->initialize();
+}
+
+int client::connect_with_url(const string& uri)
+{
+	url redis_url;
+	if (parse_url(uri, redis_url) == false)
+		return -1;
+
+	return this->connect(redis_url.host, redis_url.port, redis_url.db);
 }
 
 void client::close()
@@ -245,6 +255,7 @@ int client::sadd(const string& key, const string_array& members)
 int client::sadd(const string& key, const int num, ...)
 {
 	string_array members;
+	arguments_to_string_array(num, members);
 	return sadd(key, members);
 }
 

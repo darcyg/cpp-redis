@@ -11,20 +11,15 @@ namespace redis {
  * redis://username:password@host:port/db
  */
 struct url {
-	url()
-		: scheme(""), username(""), password(""), host(""), port(-1), db(-1)
-	{
-	}
-
-	string scheme;
-	string username;
+	url() : password(""), host(""), port(6379), db(0) {}
+	
 	string password;
 	string host;
 	int    port;
 	int    db;
 };
 
-url parse_url(const string& in);
+bool parse_url(const string& in, url& out);
 
 }
 

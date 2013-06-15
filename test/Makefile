@@ -60,9 +60,11 @@ gtest_main.a : gtest-all.o gtest_main.o
 # function.
 
 TESTCASES = \
+	client_unittest.o \
 	string_unittest.o \
 	set_unittest.o \
-	keys_unittest.o
+	keys_unittest.o \
+	url_unittest.o
 
 %.o:%.cpp
 	$(CXX)  $(CPPFLAGS) $(CXXFLAGS) -c $<

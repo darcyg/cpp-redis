@@ -16,6 +16,8 @@ public:
 
 	int connect(const string& host, const int port = 6379, const int db = 0,
 			const int pool_size = 5, const int max_pool_size = 10);
+	int connect_with_url(const string& url);
+
 	void close();
 
 	// string command
