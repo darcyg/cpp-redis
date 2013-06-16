@@ -6,7 +6,9 @@
 
 namespace redis {
 
-	bool recv_status_reply(redisReply* reply);
+	bool recv_ok_reply(redisReply* reply);
+
+	string recv_status_reply(redisReply* reply);
 
 	int recv_int_reply(redisReply* reply);
 

@@ -72,7 +72,7 @@ bool connection::select_database(const int db)
 	if (reply == NULL)
 		return false;
 
-	return recv_status_reply(reply);
+	return recv_ok_reply(reply);
 }
 
 

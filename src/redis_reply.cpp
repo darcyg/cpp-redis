@@ -31,7 +31,7 @@ static void throw_redis_exception(redisReply* reply)
 		throw redis_exception("Unknown exception");
 }
 
-bool recv_status_reply(redisReply* reply)
+bool recv_ok_reply(redisReply* reply)
 {
 	bool ret = false;
 	reply_guard guard(reply);
@@ -41,6 +41,19 @@ bool recv_status_reply(redisReply* reply)
 		if (strncmp(reply->str, REDIS_STATUS_REPLY_OK, reply->len) == 0)
 			ret = true;
 	}
+	else
+		throw_redis_exception(reply);
+
+	return ret;
+}
+
+string recv_status_reply(redisReply* reply)
+{
+	string ret;
+	reply_guard guard(reply);
+
+	if (reply->type == REDIS_REPLY_STATUS)
+		ret.assign(reply->str, reply->len);
 	else
 		throw_redis_exception(reply);
 

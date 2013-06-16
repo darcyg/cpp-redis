@@ -44,10 +44,6 @@ public:
 
 	int append(const string& key, const string& value);
 
-	int exists(const string& key);
-
-	int expire(const string& key, const unsigned int secs);
-
 	int incr(const string& key);
 	int incrby(const string& key, const int increment);
 	float incrbyfloat(const string& key, const float increment);
@@ -68,11 +64,26 @@ public:
 	int bitop(const string& operation, const string& destkey, const int num, ...);
 
 	// keys command
+	int exists(const string& key);
+
+	int expire(const string& key, const unsigned int seconds);
+	int expireat(const string& key, const unsigned int timestamp);
+
+	int pexpire(const string& key, const unsigned int milliseconds);
+	int pexpireat(const string& key, const unsigned int milliseconds_timestamp);
+
+	int ttl(const string& key);
+	int pttl(const string& key);
+
+	int persist(const string& key);
+
 	int keys(const string& pattern, string_array& arr);
 
 	int del(const string& key);
 	int del(const int num, ...);
 	int del(const string_array& keys);
+
+	string type(const string& key);
 
 	// set command
 	int scard(const string& key);
@@ -117,7 +128,8 @@ public:
 private:
 	redisReply* execute(const rediscmd& cmd);
 
-	bool execute_and_get_status_reply(const rediscmd& cmd);
+	bool execute_and_get_ok_reply(const rediscmd& cmd);
+	string execute_and_get_status_reply(const rediscmd& cmd);
 	int execute_and_get_int_reply(const rediscmd& cmd);
 	float execute_and_get_float_reply(const rediscmd& cmd);
 	int execute_and_get_string_reply(const rediscmd& cmd, string& str);

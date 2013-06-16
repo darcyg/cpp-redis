@@ -50,7 +50,13 @@ redisReply* client::execute(const rediscmd& cmd)
 	return conn->send_command(cmd.argc, cmd.argv, cmd.argvlen);
 }
 
-bool client::execute_and_get_status_reply(const rediscmd& cmd)
+bool client::execute_and_get_ok_reply(const rediscmd& cmd)
+{
+	redisReply* reply = execute(cmd);
+	return recv_ok_reply(reply);
+}
+
+string client::execute_and_get_status_reply(const rediscmd& cmd)
 {
 	redisReply* reply = execute(cmd);
 	return recv_status_reply(reply);
@@ -97,7 +103,7 @@ bool client::set(const string& key, const string& value)
 {
 	makecmd cmd("SET");
 	cmd << key << value;
-	return execute_and_get_status_reply(cmd);
+	return execute_and_get_ok_reply(cmd);
 }
 
 bool client::setex(const string& key, const string& value, const int seconds)
@@ -107,7 +113,7 @@ bool client::setex(const string& key, const string& value, const int seconds)
 
 	makecmd cmd("SETEX");
 	cmd << key << seconds << value;
-	return execute_and_get_status_reply(cmd);
+	return execute_and_get_ok_reply(cmd);
 }
 
 bool client::psetex(const string& key, const string& value, const int milliseconds)
@@ -117,7 +123,7 @@ bool client::psetex(const string& key, const string& value, const int millisecon
 
 	makecmd cmd("SETEX");
 	cmd << key << milliseconds << value;
-	return execute_and_get_status_reply(cmd);
+	return execute_and_get_ok_reply(cmd);
 }
 
 int client::setnx(const string& key, const string& value)
@@ -131,7 +137,7 @@ bool client::mset(const string_map& kv_map)
 {
 	makecmd cmd("MSET");
 	cmd << kv_map;
-	return execute_and_get_status_reply(cmd);
+	return execute_and_get_ok_reply(cmd);
 }
 
 bool client::mset(const int pair_num, ...)
@@ -207,20 +213,6 @@ int client::append(const string& key, const string& value)
 {
 	makecmd cmd("APPEND");
 	cmd << key << value;
-	return execute_and_get_int_reply(cmd);
-}
-
-int client::exists(const std::string& key)
-{
-	makecmd cmd("EXISTS");
-	cmd << key;
-	return execute_and_get_int_reply(cmd);
-}
-
-int client::expire(const std::string& key, const unsigned int secs)
-{
-	makecmd cmd("EXPIRE");
-	cmd << key << secs;
 	return execute_and_get_int_reply(cmd);
 }
 
@@ -328,6 +320,62 @@ int client::bitop(const string& operation, const string& destkey, const int num,
 	return bitop(operation, destkey, keys);
 }
 
+int client::exists(const std::string& key)
+{
+	makecmd cmd("EXISTS");
+	cmd << key;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::expire(const string& key, const unsigned int seconds)
+{
+	makecmd cmd("EXPIRE");
+	cmd << key << seconds;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::expireat(const string& key, const unsigned int timestamp)
+{
+	makecmd cmd("EXPIREAT");
+	cmd << key << timestamp;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::pexpire(const string& key, const unsigned int milliseconds)
+{
+	makecmd cmd("PEXPIRE");
+	cmd << key << milliseconds;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::pexpireat(const string& key, const unsigned int milliseconds_timestamp)
+{
+	makecmd cmd("PEXPIREAT");
+	cmd << key << milliseconds_timestamp;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::ttl(const string& key)
+{
+	makecmd cmd("TTL");
+	cmd << key;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::pttl(const string& key)
+{
+	makecmd cmd("PTTL");
+	cmd << key;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::persist(const string& key)
+{
+	makecmd cmd("PERSIST");
+	cmd << key;
+	return execute_and_get_int_reply(cmd);
+}
+
 int client::keys(const std::string& pattern, string_array& arr)
 {
 	makecmd cmd("KEYS");
@@ -354,6 +402,13 @@ int client::del(const int num, ...)
 	string_array keys;
 	arguments_to_string_array(num, keys);
 	return del(keys);
+}
+
+string client::type(const string& key)
+{
+	makecmd cmd("TYPE");
+	cmd << key;
+	return execute_and_get_status_reply(cmd);
 }
 
 int client::scard(const std::string& key)
