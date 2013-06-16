@@ -27,14 +27,14 @@ namespace redis {
 		} \
 		va_end(ap);
 
-	#define pair_arguments_to_string_array(pair_num, strs) \
-		const int num = pair_num * 2; \
+	#define pair_arguments_to_string_map(pair_num, m) \
 		va_list ap; \
 		va_start(ap, pair_num); \
-		for (int i = 0; i < num; ++i) \
+		for (int i = 0; i < pair_num; ++i) \
 		{ \
-			string arg = va_arg(ap, char*); \
-			strs.push_back(arg); \
+			string key = va_arg(ap, char*); \
+			string value = va_arg(ap, char*); \
+			m[key] = value; \
 		} \
 		va_end(ap);
 }

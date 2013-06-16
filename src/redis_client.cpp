@@ -6,6 +6,9 @@
 
 namespace redis {
 
+const char* BITOP_ARR[] = {"AND", "OR", "XOR", "NOT"};
+const int BITOP_NUM = sizeof(BITOP_ARR) / sizeof(const char*);
+
 client::client()
 {
 }
@@ -136,11 +139,26 @@ bool client::mset(const int pair_num, ...)
 	if (pair_num < 1)
 		return false;
 
-	makecmd cmd("MSET");
-	string_array kv_pairs;
-	pair_arguments_to_string_array(pair_num, kv_pairs);
-	cmd << kv_pairs;
-	return execute_and_get_status_reply(cmd);
+	string_map kv_pairs;
+	pair_arguments_to_string_map(pair_num, kv_pairs);
+	return mset(kv_pairs);
+}
+
+int client::msetnx(const string_map& kv_map)
+{
+	makecmd cmd("MSETNX");
+	cmd << kv_map;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::msetnx(const int pair_num, ...)
+{
+	if (pair_num < 1)
+		return false;
+
+	string_map kv_pairs;
+	pair_arguments_to_string_map(pair_num, kv_pairs);
+	return msetnx(kv_pairs);
 }
 
 int client::get(const std::string& key, string& value)
@@ -169,6 +187,13 @@ int client::getset(const string& key, const string& value, string& original)
 	makecmd cmd("GETSET");
 	cmd << key << value;
 	return execute_and_get_string_reply(cmd, original);
+}
+
+int client::setrange(const string& key, const int offset, const string& value)
+{
+	makecmd cmd("SETRANGE");
+	cmd << key << offset << value;
+	return execute_and_get_int_reply(cmd);
 }
 
 int client::getrange(const string& key, const int start, const int end, string& substring)
@@ -206,10 +231,10 @@ int client::incr(const string& key)
 	return execute_and_get_int_reply(cmd);
 }
 
-int client::incrby(const string& key, int amount)
+int client::incrby(const string& key, const int increment)
 {
 	makecmd cmd("INCRBY");
-	cmd << key << amount;
+	cmd << key << increment;
 	return execute_and_get_int_reply(cmd);
 }
 
@@ -227,11 +252,80 @@ int client::decr(const string& key)
 	return execute_and_get_int_reply(cmd);
 }
 
-int client::decrby(const std::string& key, int amount)
+int client::decrby(const string& key, const int increment)
 {
 	makecmd cmd("DECRBY");
-	cmd << key << amount;
+	cmd << key << increment;
 	return execute_and_get_int_reply(cmd);
+}
+
+int client::strlen(const string& key)
+{
+	makecmd cmd("STRLEN");
+	cmd << key;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::setbit(const string& key, const int offset, const int value)
+{
+	makecmd cmd("SETBIT");
+	cmd << key << offset << value;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::getbit(const string& key, const int offset)
+{
+	makecmd cmd("GETBIT");
+	cmd << key << offset;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::bitcount(const string& key)
+{
+	makecmd cmd("BITCOUNT");
+	cmd << key;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::bitcount(const string& key, const int start)
+{
+	makecmd cmd("BITCOUNT");
+	cmd << key << start;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::bitcount(const string& key, const int start, const int end)
+{
+	makecmd cmd("BITCOUNT");
+	cmd << key << start << end;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::bitop(const string& operation, const string& destkey, const string_array& keys)
+{
+	// someday, this code will be replaced with vector find function.
+	int i = 0;
+	for ( ; i < BITOP_NUM; ++i)
+	{
+		if (BITOP_ARR[i] == operation)
+			break;
+	}
+	if (BITOP_NUM == i)
+		return -1;
+
+	if (keys.empty())
+		return -1;
+
+	makecmd cmd("BITOP");
+	cmd << operation << destkey << keys;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::bitop(const string& operation, const string& destkey, const int num, ...)
+{
+	string_array keys;
+	arguments_to_string_array(num, keys);
+	return bitop(operation, destkey, keys);
 }
 
 int client::keys(const std::string& pattern, string_array& arr)

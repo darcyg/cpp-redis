@@ -30,12 +30,16 @@ public:
 	bool mset(const int pair_num, ...);
 	bool mset(const string_map& kv_map);
 
+	int msetnx(const int pair_num, ...);
+	int msetnx(const string_map& kv_map);
+
 	int get(const string& key, string& value);
 	int mget(const string_array& keys, string_map& kv_map);
 	int mget(string_map& kv_map, const int num, ...);
 
 	int getset(const string& key, const string& value, string& original);
 
+	int setrange(const string& key, const int offset, const string& value);
 	int getrange(const string& key, const int start, const int end, string& substring);
 
 	int append(const string& key, const string& value);
@@ -45,11 +49,23 @@ public:
 	int expire(const string& key, const unsigned int secs);
 
 	int incr(const string& key);
-	int incrby(const string& key, int amount);
+	int incrby(const string& key, const int increment);
 	float incrbyfloat(const string& key, const float increment);
 
 	int decr(const string& key);
-	int decrby(const string& key, int amount);
+	int decrby(const string& key, const int increment);
+
+	int strlen(const string& key);
+
+	int setbit(const string& key, const int offset, const int value);
+	int getbit(const string& key, const int offset);
+
+	int bitcount(const string& key);
+	int bitcount(const string& key, const int start);
+	int bitcount(const string& key, const int start, const int end );
+
+	int bitop(const string& operation, const string& destkey, const string_array& keys);
+	int bitop(const string& operation, const string& destkey, const int num, ...);
 
 	// keys command
 	int keys(const string& pattern, string_array& arr);
