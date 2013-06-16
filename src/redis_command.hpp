@@ -67,6 +67,22 @@ public:
 		return *this;
 	}
 
+	inline makecmd& operator << (const unsigned int& data) 
+	{
+		ostringstream oss;
+		oss << data;
+		args_.push_back(oss.str());
+		return *this;
+	}
+
+	inline makecmd& operator << (const float& data)
+	{
+		ostringstream oss;
+		oss << data;
+		args_.push_back(oss.str());
+		return *this;
+	}
+
 	makecmd& operator << (const string_array& strs)
 	{
 		for (string_array::const_iterator it = strs.begin(); it != strs.end(); ++it)

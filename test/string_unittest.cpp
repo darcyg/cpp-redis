@@ -1,4 +1,5 @@
 #include "redis_test.hpp"
+#include "redis_exception.hpp"
 
 class StringTest : public RedisTest {
 };
@@ -35,4 +36,21 @@ TEST_F(StringTest, mgetmset)
 	EXPECT_EQ(3, rc_.mget(keys, kv_map));
 
 	EXPECT_EQ(2, rc_.del(2, "testkey1", "testkey2"));
+}
+
+TEST_F(StringTest, incr)
+{
+	rc_.set("testkey1", "10.0");
+	EXPECT_FLOAT_EQ(10.5, rc_.incrbyfloat("testkey1", 0.5));
+	EXPECT_FLOAT_EQ(9.5, rc_.incrbyfloat("testkey1", -1.0));
+	rc_.del("testkey1");
+
+	rc_.set("testkey1", "foo");
+	try {
+		rc_.incrbyfloat("testkey1", 0.1);
+	} catch (const redis::value_exception& e) {
+		EXPECT_TRUE(true);
+	} catch (const exception& ex) {
+		EXPECT_TRUE(false);
+	}
 }

@@ -10,6 +10,8 @@ namespace redis {
 
 	int recv_int_reply(redisReply* reply);
 
+	float recv_float_reply(redisReply* reply);
+
 	int recv_string_reply(redisReply* reply, string& str);
 
 	int recv_string_array_reply(redisReply* reply, string_array& arr);

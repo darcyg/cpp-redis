@@ -34,16 +34,21 @@ public:
 	int mget(const string_array& keys, string_map& kv_map);
 	int mget(string_map& kv_map, const int num, ...);
 
+	int getset(const string& key, const string& value, string& original);
+
+	int getrange(const string& key, const int start, const int end, string& substring);
+
+	int append(const string& key, const string& value);
+
 	int exists(const string& key);
 
 	int expire(const string& key, const unsigned int secs);
 
 	int incr(const string& key);
-
 	int incrby(const string& key, int amount);
+	float incrbyfloat(const string& key, const float increment);
 
 	int decr(const string& key);
-
 	int decrby(const string& key, int amount);
 
 	// keys command
@@ -98,6 +103,7 @@ private:
 
 	bool execute_and_get_status_reply(const rediscmd& cmd);
 	int execute_and_get_int_reply(const rediscmd& cmd);
+	float execute_and_get_float_reply(const rediscmd& cmd);
 	int execute_and_get_string_reply(const rediscmd& cmd, string& str);
 	int execute_and_get_string_array_reply(const rediscmd& cmd, string_array& arr);
 	int execute_and_get_string_set_reply(const rediscmd& cmd, string_set& s);

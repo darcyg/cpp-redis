@@ -59,6 +59,12 @@ int client::execute_and_get_int_reply(const rediscmd& cmd)
 	return recv_int_reply(reply);
 }
 
+float client::execute_and_get_float_reply(const rediscmd& cmd)
+{
+	redisReply* reply = execute(cmd);
+	return recv_float_reply(reply);
+}
+
 int client::execute_and_get_string_reply(const rediscmd& cmd, string& value)
 {
 	redisReply* reply = execute(cmd);
@@ -158,6 +164,27 @@ int client::mget(string_map& kv_map, const int num, ...)
 	return mget(keys, kv_map);
 }
 
+int client::getset(const string& key, const string& value, string& original)
+{
+	makecmd cmd("GETSET");
+	cmd << key << value;
+	return execute_and_get_string_reply(cmd, original);
+}
+
+int client::getrange(const string& key, const int start, const int end, string& substring)
+{
+	makecmd cmd("GETRANGE");
+	cmd << key << start << end;
+	return execute_and_get_string_reply(cmd, substring);
+}
+
+int client::append(const string& key, const string& value)
+{
+	makecmd cmd("APPEND");
+	cmd << key << value;
+	return execute_and_get_int_reply(cmd);
+}
+
 int client::exists(const std::string& key)
 {
 	makecmd cmd("EXISTS");
@@ -167,8 +194,8 @@ int client::exists(const std::string& key)
 
 int client::expire(const std::string& key, const unsigned int secs)
 {
-	makecmd m("EXPIRE");
-	const rediscmd& cmd = (m << key << secs);
+	makecmd cmd("EXPIRE");
+	cmd << key << secs;
 	return execute_and_get_int_reply(cmd);
 }
 
@@ -184,6 +211,13 @@ int client::incrby(const string& key, int amount)
 	makecmd cmd("INCRBY");
 	cmd << key << amount;
 	return execute_and_get_int_reply(cmd);
+}
+
+float client::incrbyfloat(const string& key, const float increment)
+{
+	makecmd cmd("INCRBYFLOAT");
+	cmd << key << increment;
+	return execute_and_get_float_reply(cmd);
 }
 
 int client::decr(const string& key)

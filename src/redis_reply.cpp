@@ -1,4 +1,5 @@
-#include <string.h>
+#include <cstring>
+#include <cstdlib>
 #include "redis_reply.hpp"
 #include "redis_exception.hpp"
 
@@ -53,6 +54,20 @@ int recv_int_reply(redisReply* reply)
 
 	if (reply->type == REDIS_REPLY_INTEGER)
 		ret = reply->integer;
+	else
+		throw_redis_exception(reply);
+
+	return ret;
+}
+
+float recv_float_reply(redisReply* reply)
+{
+	float ret;
+	reply_guard guard(reply);
+
+	string str;
+	if (reply->type == REDIS_REPLY_STRING)
+		ret = atof(reply->str);
 	else
 		throw_redis_exception(reply);
 
