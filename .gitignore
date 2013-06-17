@@ -2,4 +2,5 @@
 *.so
 *.la
 *.log
+*.lo
 cppredis_unittest

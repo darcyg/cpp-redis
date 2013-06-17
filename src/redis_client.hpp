@@ -60,8 +60,8 @@ public:
 	int bitcount(const string& key, const int start);
 	int bitcount(const string& key, const int start, const int end );
 
-	int bitop(const string& operation, const string& destkey, const string_array& keys);
-	int bitop(const string& operation, const string& destkey, const int num, ...);
+	int bitop(const BitOp operation, const string& destkey, const string_array& keys);
+	int bitop(const BitOp operation, const string& destkey, const int num, ...);
 
 	// keys command
 	int exists(const string& key);
@@ -123,7 +123,29 @@ public:
 	int sunionstore(const string& destination, const int num, ...);
 
 	// hash command
-	int hincrby(const string& key, const string& field, const int amount = 1);
+	int hget(const string& key, const string& field, string& value);
+
+	int hmget(const string& key, const string_array& fields, string_hash_map& h);
+	int hmget(string_hash_map& h, const string& fields, const int num, ...);
+
+	int hset(const string& key, const string& field, const string& value);
+
+	bool hmset(const string& key, const string_hash_map& h);
+	bool hmset(const string& key, const int pair_num, ...);
+
+
+	int hsetnx(const string& key, const string& field, const string& value);
+
+	int hexists(const string& key, const string& field);
+
+	int hincrby(const string& key, const string& field, const int increment = 1);
+	float hincrbyfloat(const string& key, const string& filed, const float increment);
+
+	int hkeys(const string& key, string_array& fields);
+	int hvals(const string& key, string_array& values);
+	int hgetall(const string& key, string_hash_map& h);
+
+	int hlen(const string& key);
 
 private:
 	redisReply* execute(const rediscmd& cmd);
@@ -136,7 +158,10 @@ private:
 	int execute_and_get_string_array_reply(const rediscmd& cmd, string_array& arr);
 	int execute_and_get_string_set_reply(const rediscmd& cmd, string_set& s);
 	int execute_and_get_string_map_reply(const rediscmd& cmd, const string_array& keys, 
-		string_map& kv_map);
+		string_map& m);
+	int execute_and_get_string_hash_map_reply(const rediscmd& cmd, string_hash_map& h);
+	int execute_and_get_string_hash_map_reply(const rediscmd& cmd, const string_array& fileds, 
+		string_hash_map& h);
 
 	connection_pool* pool_;
 };

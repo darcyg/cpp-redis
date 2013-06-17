@@ -3,13 +3,14 @@ RM = rm
 CCC = g++
 AR = ar
 
-CDEBUGFLAGS =  -g
+CXXFLAGS = -g -fPIC -std=c++11
 LDOPTIONS = 
 
 ALLINCLUDES = -I../deps
 LDLIBS = ../deps/hiredis/libhiredis.a
 
-CCFLAGS = $(CDEBUGFLAGS) $(ALLINCLUDES)
+
+CCFLAGS = $(CXXFLAGS) $(ALLINCLUDES)
 
 OBJS = \
 	redis_reply.o \

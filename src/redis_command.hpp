@@ -85,14 +85,24 @@ public:
 
 	makecmd& operator << (const string_array& strs)
 	{
-		for (string_array::const_iterator it = strs.begin(); it != strs.end(); ++it)
+		for (auto it = strs.begin(); it != strs.end(); ++it)
 			args_.push_back(*it);
 		return *this;
 	}
 
-	makecmd& operator << (const string_map& kv_map)
+	makecmd& operator << (const string_map& m)
 	{
-		for (string_map::const_iterator it = kv_map.begin(); it != kv_map.end(); ++it)
+		for (auto it = m.begin(); it != m.end(); ++it)
+		{
+			args_.push_back(it->first);
+			args_.push_back(it->second);
+		}
+		return *this;
+	}
+
+	makecmd& operator << (const string_hash_map& h)
+	{
+		for (auto it = h.begin(); it != h.end(); ++it)
 		{
 			args_.push_back(it->first);
 			args_.push_back(it->second);

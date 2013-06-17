@@ -156,12 +156,12 @@ int recv_string_set_reply(redisReply* reply, string_set& s)
 }
 
 int recv_string_map_reply(redisReply* reply, const string_array& keys, 
-	string_map& kv_map)
+	string_map& m)
 {
 	int elements = 0;
 	reply_guard guard(reply);
 
-	kv_map.clear();
+	m.clear();
 	if (reply->type == REDIS_REPLY_ARRAY)
 	{
 		if (reply->elements > 0)
@@ -172,12 +172,76 @@ int recv_string_map_reply(redisReply* reply, const string_array& keys,
 				if (elem->type == REDIS_REPLY_STRING)
 				{
 					const string& key = keys[i];
-					kv_map[key] = string(elem->str, elem->len);
+					m[key] = string(elem->str, elem->len);
 					elements++;
 				}
 				else if (elem->type == REDIS_REPLY_NIL)
 				{
 					// log keys[i] get failed
+				}
+			}
+		}
+	}
+	else
+		throw_redis_exception(reply);
+
+	return elements;
+}
+
+int recv_string_hash_map_reply(redisReply* reply, string_hash_map& h)
+{
+	int elements = 0;
+	reply_guard guard(reply);
+
+	h.clear();
+	if (reply->type == REDIS_REPLY_ARRAY)
+	{
+		if (reply->elements > 0)
+		{
+			h.reserve(reply->elements / 2);
+			for (size_t i = 0; i < reply->elements; ++i)
+			{
+				redisReply* filed = reply->element[i++];
+				redisReply* value = reply->element[i];
+				if ((filed->type == REDIS_REPLY_STRING) && (value->type == REDIS_REPLY_STRING))
+				{
+					h[string(filed->str, filed->len)] = string(value->str, value->len);
+					elements++;
+				}
+				else
+					throw_redis_exception(reply);
+			}
+		}
+	}
+	else
+		throw_redis_exception(reply);
+
+	return elements;
+}
+
+int recv_string_hash_map_reply(redisReply* reply, const string_array& fields, 
+	string_hash_map& h)
+{
+	int elements = 0;
+	reply_guard guard(reply);
+
+	h.clear();
+	if (reply->type == REDIS_REPLY_ARRAY)
+	{
+		if (reply->elements > 0)
+		{
+			for (size_t i = 0; i < reply->elements; ++i)
+			{
+				redisReply* elem = reply->element[i];
+				if (elem->type == REDIS_REPLY_STRING)
+				{
+					const string& field = fields[i];
+					h[field] = string(elem->str, elem->len);
+					elements++;
+				}
+				else if (elem->type == REDIS_REPLY_NIL)
+				{
+					// log fields[i] get failed
 				}
 			}
 		}

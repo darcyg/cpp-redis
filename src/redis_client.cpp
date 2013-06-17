@@ -6,8 +6,7 @@
 
 namespace redis {
 
-const char* BITOP_ARR[] = {"AND", "OR", "XOR", "NOT"};
-const int BITOP_NUM = sizeof(BITOP_ARR) / sizeof(const char*);
+array<string, BitOp_Num> bitop_strs = {"AND", "OR", "XOR", "NOT"};
 
 client::client()
 {
@@ -93,10 +92,23 @@ int client::execute_and_get_string_set_reply(const rediscmd& cmd, string_set& s)
 }
 
 int client::execute_and_get_string_map_reply(const rediscmd& cmd, const string_array& keys, 
-	string_map& kv_map)
+	string_map& m)
 {
 	redisReply* reply = execute(cmd);
-	return recv_string_map_reply(reply, keys, kv_map);
+	return recv_string_map_reply(reply, keys, m);
+}
+
+int client::execute_and_get_string_hash_map_reply(const rediscmd& cmd, string_hash_map& h)
+{
+	redisReply* reply = execute(cmd);
+	return recv_string_hash_map_reply(reply, h);
+}
+
+int client::execute_and_get_string_hash_map_reply(const rediscmd& cmd, const string_array& fields, 
+	string_hash_map& h)
+{
+	redisReply* reply = execute(cmd);
+	return recv_string_hash_map_reply(reply, fields, h);
 }
 
 bool client::set(const string& key, const string& value)
@@ -293,27 +305,17 @@ int client::bitcount(const string& key, const int start, const int end)
 	return execute_and_get_int_reply(cmd);
 }
 
-int client::bitop(const string& operation, const string& destkey, const string_array& keys)
+int client::bitop(const BitOp operation, const string& destkey, const string_array& keys)
 {
-	// someday, this code will be replaced with vector find function.
-	int i = 0;
-	for ( ; i < BITOP_NUM; ++i)
-	{
-		if (BITOP_ARR[i] == operation)
-			break;
-	}
-	if (BITOP_NUM == i)
-		return -1;
-
 	if (keys.empty())
 		return -1;
 
 	makecmd cmd("BITOP");
-	cmd << operation << destkey << keys;
+	cmd << bitop_strs[operation] << destkey << keys;
 	return execute_and_get_int_reply(cmd);
 }
 
-int client::bitop(const string& operation, const string& destkey, const int num, ...)
+int client::bitop(const BitOp operation, const string& destkey, const int num, ...)
 {
 	string_array keys;
 	arguments_to_string_array(num, keys);
@@ -580,10 +582,101 @@ int client::sunionstore(const string& destination, const int num, ...)
 	return sunionstore(destination, keys);
 }
 
-int client::hincrby(const std::string& key, const std::string& field, const int amount)
+int client::hget(const string& key, const string& field, string& value)
+{
+	makecmd cmd("HGET");
+	cmd << key << field;
+	return execute_and_get_string_reply(cmd, value);
+}
+
+int client::hmget(const string& key, const string_array& fields, string_hash_map& h)
+{
+	makecmd cmd("HMGET");
+	cmd << key << fields;
+	return execute_and_get_string_hash_map_reply(cmd, fields, h);
+}
+
+int client::client::hmget(string_hash_map& h, const string& key, const int num, ...)
+{
+	string_array fields;
+	arguments_to_string_array(num, fields);
+	return hmget(key, fields, h);
+}
+
+int client::hset(const string& key, const string& field, const string& value)
+{
+	makecmd cmd("HSET");
+	cmd << key << field << value;
+	return execute_and_get_int_reply(cmd);
+}
+
+bool client::hmset(const string& key, const string_hash_map& h)
+{
+	makecmd cmd("HMSET");
+	cmd << key << h;
+	return execute_and_get_ok_reply(cmd);
+}
+
+bool client::hmset(const string& key, const int pair_num, ...)
+{
+	string_hash_map h;
+	pair_arguments_to_string_hash_map(pair_num, h);
+	return hmset(key, h);
+}
+
+int client::hsetnx(const string& key, const string& field, const string& value)
+{
+	makecmd cmd("HSETNX");
+	cmd << key << field << value;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::hexists(const string& key, const string& field)
+{
+	makecmd cmd("HEXISTS");
+	cmd << key << field;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::hincrby(const string& key, const string& field, const int increment)
 {
 	makecmd cmd("HINCRBY");
-	cmd << key << field << amount;
+	cmd << key << field << increment;
+	return execute_and_get_int_reply(cmd);
+}
+
+float client::hincrbyfloat(const string& key, const string& filed, const float increment)
+{
+	makecmd cmd("HINCRBYFLOAT");
+	cmd << key << filed << increment;
+	return execute_and_get_float_reply(cmd);
+}
+
+int client::hkeys(const string& key, string_array& fields)
+{
+	makecmd cmd("HKEYS");
+	cmd << key;
+	return execute_and_get_string_array_reply(cmd, fields);
+}
+
+int client::hvals(const string& key, string_array& values)
+{
+	makecmd cmd("HVALS");
+	cmd << key;
+	return execute_and_get_string_array_reply(cmd, values);
+}
+
+int client::hgetall(const string& key, string_hash_map& h)
+{
+	makecmd cmd("HGETALL");
+	cmd << key;
+	return execute_and_get_string_hash_map_reply(cmd, h);
+}
+
+int client::hlen(const string& key)
+{
+	makecmd cmd("HLEN");
+	cmd << key;
 	return execute_and_get_int_reply(cmd);
 }
 
