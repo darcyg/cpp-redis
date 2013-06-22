@@ -13,5 +13,5 @@ TEST_F(KeysTest, smember)
 
 	EXPECT_EQ("none", rc_.type("testkey2notexistdeadbeaf"));
 
-	rc_.del(2, "testkey1", "testkey2");
+	rc_.del("testkey1", "testkey2");
 }

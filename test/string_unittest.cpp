@@ -20,8 +20,8 @@ TEST_F(StringTest, mgetmset)
 	vector<string> keys;
 	redis::string_map kv_map;
 
-	EXPECT_TRUE(rc_.mset(2, "testkey1", "testvalue1", "testkey2", "testvalue2"));
-	EXPECT_EQ(2, rc_.mget(kv_map, 2, "testkey1", "testkey2"));
+	EXPECT_TRUE(rc_.mset("testkey1", "testvalue1", "testkey2", "testvalue2"));
+	EXPECT_EQ(2, rc_.mget(kv_map, "testkey1", "testkey2"));
 
 	kv_map["testkey3"] = "testvalue3";
 	kv_map["testkey4"] = "testvalue4";
@@ -35,7 +35,7 @@ TEST_F(StringTest, mgetmset)
 	keys.push_back("testkey5");
 	EXPECT_EQ(3, rc_.mget(keys, kv_map));
 
-	EXPECT_EQ(2, rc_.del(2, "testkey1", "testkey2"));
+	EXPECT_EQ(2, rc_.del("testkey1", "testkey2"));
 }
 
 TEST_F(StringTest, incr)

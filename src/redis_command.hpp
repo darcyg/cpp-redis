@@ -85,8 +85,8 @@ public:
 
 	makecmd& operator << (const string_array& strs)
 	{
-		for (auto it = strs.begin(); it != strs.end(); ++it)
-			args_.push_back(*it);
+		for (const string& s : strs)
+			args_.push_back(s);
 		return *this;
 	}
 

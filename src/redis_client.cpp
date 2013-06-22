@@ -152,31 +152,11 @@ bool client::mset(const string_map& kv_map)
 	return execute_and_get_ok_reply(cmd);
 }
 
-bool client::mset(const int pair_num, ...)
-{
-	if (pair_num < 1)
-		return false;
-
-	string_map kv_pairs;
-	pair_arguments_to_string_map(pair_num, kv_pairs);
-	return mset(kv_pairs);
-}
-
 int client::msetnx(const string_map& kv_map)
 {
 	makecmd cmd("MSETNX");
 	cmd << kv_map;
 	return execute_and_get_int_reply(cmd);
-}
-
-int client::msetnx(const int pair_num, ...)
-{
-	if (pair_num < 1)
-		return false;
-
-	string_map kv_pairs;
-	pair_arguments_to_string_map(pair_num, kv_pairs);
-	return msetnx(kv_pairs);
 }
 
 int client::get(const std::string& key, string& value)
@@ -191,13 +171,6 @@ int client::mget(const string_array& keys, string_map& kv_map)
 	makecmd cmd("MGET");
 	cmd << keys;
 	return execute_and_get_string_map_reply(cmd, keys, kv_map);
-}
-
-int client::mget(string_map& kv_map, const int num, ...)
-{
-	string_array keys;
-	arguments_to_string_array(num, keys);
-	return mget(keys, kv_map);
 }
 
 int client::getset(const string& key, const string& value, string& original)
@@ -315,13 +288,6 @@ int client::bitop(const BitOp operation, const string& destkey, const string_arr
 	return execute_and_get_int_reply(cmd);
 }
 
-int client::bitop(const BitOp operation, const string& destkey, const int num, ...)
-{
-	string_array keys;
-	arguments_to_string_array(num, keys);
-	return bitop(operation, destkey, keys);
-}
-
 int client::exists(const std::string& key)
 {
 	makecmd cmd("EXISTS");
@@ -385,25 +351,11 @@ int client::keys(const std::string& pattern, string_array& arr)
 	return execute_and_get_string_array_reply(cmd, arr);
 }
 
-int client::del(const string& key)
-{
-	makecmd cmd("DEL");
-	cmd << key;
-	return execute_and_get_int_reply(cmd);
-}
-
 int client::del(const string_array& keys)
 {
 	makecmd cmd("DEL");
 	cmd << keys;
 	return execute_and_get_int_reply(cmd);
-}
-
-int client::del(const int num, ...)
-{
-	string_array keys;
-	arguments_to_string_array(num, keys);
-	return del(keys);
 }
 
 string client::type(const string& key)
@@ -420,13 +372,6 @@ int client::scard(const std::string& key)
 	return execute_and_get_int_reply(cmd);
 }
 
-int client::sadd(const std::string& key, const std::string& member)
-{
-	makecmd cmd("SADD");
-	cmd << key << member;
-	return execute_and_get_int_reply(cmd);
-}
-
 int client::sadd(const string& key, const string_array& members)
 {
 	if (members.empty())
@@ -435,13 +380,6 @@ int client::sadd(const string& key, const string_array& members)
 	makecmd cmd("SADD");
 	cmd << key << members;
 	return execute_and_get_int_reply(cmd);
-}
-
-int client::sadd(const string& key, const int num, ...)
-{
-	string_array members;
-	arguments_to_string_array(num, members);
-	return sadd(key, members);
 }
 
 int client::sdiff(const string_array& keys, string_set& s)
@@ -455,25 +393,11 @@ int client::sdiff(const string_array& keys, string_set& s)
 	return execute_and_get_string_set_reply(cmd, s);
 }
 
-int client::sdiff(string_set& s, const int num, ...)
-{
-	string_array keys;
-	arguments_to_string_array(num, keys);
-	return sdiff(keys, s);
-}
-
 int client::sdiffstore(const string& destination, const string_array& keys)
 {
 	makecmd cmd("SDIFFSTORE");
 	cmd << destination << keys;
 	return execute_and_get_int_reply(cmd);
-}
-
-int client::sdiffstore(const string& destination, const int num, ...)
-{
-	string_array keys;
-	arguments_to_string_array(num, keys);
-	return sdiffstore(destination, keys);
 }
 
 int client::sinter(const string_array& keys, string_set& s)
@@ -487,25 +411,11 @@ int client::sinter(const string_array& keys, string_set& s)
 	return execute_and_get_string_set_reply(cmd, s);
 }
 
-int client::sinter(string_set& s, const int num, ...)
-{
-	string_array keys;
-	arguments_to_string_array(num, keys);
-	return sinter(keys, s);
-}
-
 int client::sinterstore(const string& destination, const string_array& keys)
 {
 	makecmd cmd("SINTERSTORE");
 	cmd << destination << keys;
 	return execute_and_get_int_reply(cmd);
-}
-
-int client::sinterstore(const string& destination, const int num, ...)
-{
-	string_array keys;
-	arguments_to_string_array(num, keys);
-	return sinterstore(destination, keys);
 }
 
 int client::smembers(const string& key, string_set& members)
@@ -561,25 +471,11 @@ int client::sunion(const string_array& keys, string_set& s)
 	return execute_and_get_string_set_reply(cmd, s);
 }
 
-int client::sunion(string_set& s, const int num, ...)
-{
-	string_array keys;
-	arguments_to_string_array(num, keys);
-	return sdiff(keys, s);
-}
-
 int client::sunionstore(const string& destination, const string_array& keys)
 {
 	makecmd cmd("SUNIONSTORE");
 	cmd << destination << keys;
 	return execute_and_get_int_reply(cmd);
-}
-
-int client::sunionstore(const string& destination, const int num, ...)
-{
-	string_array keys;
-	arguments_to_string_array(num, keys);
-	return sunionstore(destination, keys);
 }
 
 int client::hget(const string& key, const string& field, string& value)
@@ -596,13 +492,6 @@ int client::hmget(const string& key, const string_array& fields, string_hash_map
 	return execute_and_get_string_hash_map_reply(cmd, fields, h);
 }
 
-int client::client::hmget(string_hash_map& h, const string& key, const int num, ...)
-{
-	string_array fields;
-	arguments_to_string_array(num, fields);
-	return hmget(key, fields, h);
-}
-
 int client::hset(const string& key, const string& field, const string& value)
 {
 	makecmd cmd("HSET");
@@ -615,13 +504,6 @@ bool client::hmset(const string& key, const string_hash_map& h)
 	makecmd cmd("HMSET");
 	cmd << key << h;
 	return execute_and_get_ok_reply(cmd);
-}
-
-bool client::hmset(const string& key, const int pair_num, ...)
-{
-	string_hash_map h;
-	pair_arguments_to_string_hash_map(pair_num, h);
-	return hmset(key, h);
 }
 
 int client::hsetnx(const string& key, const string& field, const string& value)

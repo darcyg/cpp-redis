@@ -26,16 +26,18 @@ public:
 	bool psetex(const string& key, const string& value, const int milliseconds);
 	int setnx(const string& key, const string& value);
 
-	// the variable argument mset function is not binary safe.
-	bool mset(const int pair_num, ...);
 	bool mset(const string_map& kv_map);
+	template <typename ... Args>
+	bool mset(const Args & ... args);
 
-	int msetnx(const int pair_num, ...);
 	int msetnx(const string_map& kv_map);
+	template <typename ... Args>
+	int msetnx(const Args & ... args);
 
 	int get(const string& key, string& value);
 	int mget(const string_array& keys, string_map& kv_map);
-	int mget(string_map& kv_map, const int num, ...);
+	template <typename ... Args>
+	int mget(string_map& kv_map, const Args & ... args);
 
 	int getset(const string& key, const string& value, string& original);
 
@@ -61,7 +63,8 @@ public:
 	int bitcount(const string& key, const int start, const int end );
 
 	int bitop(const BitOp operation, const string& destkey, const string_array& keys);
-	int bitop(const BitOp operation, const string& destkey, const int num, ...);
+	template <typename ... Args>
+	int bitop(const BitOp operation, const string& destkey, const Args & ... args);
 
 	// keys command
 	int exists(const string& key);
@@ -79,30 +82,34 @@ public:
 
 	int keys(const string& pattern, string_array& arr);
 
-	int del(const string& key);
-	int del(const int num, ...);
 	int del(const string_array& keys);
+	template <typename ... Args>
+	int del(const Args & ... args);
 
 	string type(const string& key);
 
 	// set command
 	int scard(const string& key);
 	
-	int sadd(const string& key, const string& member);
-	int sadd(const string& key, const int num, ...);
 	int sadd(const string& key, const string_array& members);
+	template <typename ... Args>
+	int sadd(const string& key, const Args & ... args);
 
 	int sdiff(const string_array& keys, string_set& s);
-	int sdiff(string_set& s, const int num, ...);
+	template <typename ... Args>
+	int sdiff(string_set& s, const Args & ... args);
 
 	int sdiffstore(const string& destination, const string_array& keys);
-	int sdiffstore(const string& destination, const int num, ...);
+	template <typename ... Args>
+	int sdiffstore(const string& destination, const Args & ... args);
 
 	int sinter(const string_array& keys, string_set& s);
-	int sinter(string_set& s, const int num, ...);
+	template <typename ... Args>
+	int sinter(string_set& s, const Args & ... args);
 
 	int sinterstore(const string& destination, const string_array& keys);
-	int sinterstore(const string& destination, const int num, ...);
+	template <typename ... Args>
+	int sinterstore(const string& destination, const Args & ... args);
 
 	int smembers(const string& key, string_set& members);
 
@@ -117,22 +124,25 @@ public:
 	int srem(const string& key, const string& member);
 
 	int sunion(const string_array& keys, string_set& s);
-	int sunion(string_set& s, const int num, ...);
+	template <typename ... Args>
+	int sunion(string_set& s, const Args & ... args);
 
 	int sunionstore(const string& destination, const string_array& keys);
-	int sunionstore(const string& destination, const int num, ...);
+	template <typename ... Args>
+	int sunionstore(const string& destination, const Args & ... args);
 
 	// hash command
 	int hget(const string& key, const string& field, string& value);
 
 	int hmget(const string& key, const string_array& fields, string_hash_map& h);
-	int hmget(string_hash_map& h, const string& fields, const int num, ...);
+	template <typename ... Args>
+	int hmget(string_hash_map& h, const string& key, const Args & ... args);
 
 	int hset(const string& key, const string& field, const string& value);
 
 	bool hmset(const string& key, const string_hash_map& h);
-	bool hmset(const string& key, const int pair_num, ...);
-
+	template <typename ... Args>
+	bool hmset(const string& key, const Args & ... args);
 
 	int hsetnx(const string& key, const string& field, const string& value);
 
@@ -167,5 +177,7 @@ private:
 };
 
 }
+
+#include "redis_client.inl"
 
 #endif
