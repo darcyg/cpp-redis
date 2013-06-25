@@ -17,12 +17,16 @@ public:
 
 	bool connect();
 	void disconnect();
-	bool active();
+	bool ping();
 
 	redisReply* send_command(int argc, char** argv, size_t* argvlen);
 
 private:
-	bool select_database(const int db);
+	bool auth(const string& password);
+
+	bool select(const int db);
+
+	bool quit();
 
 private:
 	redisContext* context_;

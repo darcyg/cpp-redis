@@ -16,6 +16,8 @@ namespace redis {
 	#define REDIS_STATUS_REPLY_PONG "PONG"
 
 	enum BitOp {AND = 0, OR, XOR, NOT, BitOp_Num};
+
+	enum InsertDirection {BEFORE = 0, AFTER, InsertDirection_Num};
 	
 	typedef vector<string> string_array;
 	typedef map<string, string> string_map;

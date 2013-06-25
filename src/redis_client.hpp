@@ -157,6 +157,46 @@ public:
 
 	int hlen(const string& key);
 
+	// list command
+	template <typename ... Args>
+	int blpop(const int timeout, string_array& values, const Args & ... args);
+	int blpop(const string_array& keys, const int timeout, string_array& values);
+
+	int linsert(const string& key, InsertDirection direction, const int pivot, const string& value);
+
+	int lindex(const string& key, const int index, string& value);
+
+	int llen(const string& key);
+
+	int lpop(const string& key, string& value);
+
+	template <typename ... Args>
+	int lpush(const string& key, const Args & ... args);
+	int lpush(const string& key, const string_array& values);
+
+	int lpushx(const string& key, const string& value);
+
+	int lrange(const string& key, const int start, const int stop, string_array& values);
+
+	int lrem(const string& key, const int count, const string& value);
+
+	bool lset(const string& key, const int count, const string& value);
+
+	bool ltrim(const string& key, const int start, const int stop);
+
+	int rpop(const string& key, string& value);
+
+	int rpoplpush(const string& source, const string& destination, string_array& values);
+	int brpoplpush(const string& source, const string& destination, const int timeout, 
+		string_array& values);
+
+	template <typename ... Args>
+	int rpush(const string& key, const Args & ... args);
+	int rpush(const string& key, const string_array& values);
+
+	int rpushx(const string& key, const string& value);
+
+
 private:
 	redisReply* execute(const rediscmd& cmd);
 

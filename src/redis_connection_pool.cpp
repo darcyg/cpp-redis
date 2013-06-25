@@ -58,7 +58,7 @@ connection* connection_pool::acquire()
 
 	connection* conn = connq_.front();
 	connq_.pop();
-	if (conn->active() == false)
+	if (conn->ping() == false)
 	{
 		--size_;
 		delete conn;

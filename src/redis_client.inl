@@ -104,4 +104,25 @@ bool client::hmset(const string& key, const Args & ... args)
 	return execute_and_get_ok_reply(cmd);
 }
 
+template <typename ... Args>
+int client::blpop(const int timeout, string_array& values, const Args & ... args)
+{
+	string_array keys = { args... };
+	return blpop(keys, timeout, values);
+}
+
+template <typename ... Args>
+int client::lpush(const string& key, const Args & ... args)
+{
+	string_array values = { args... };
+	return lpush(key, values);
+}
+
+template <typename ... Args>
+int client::rpush(const string& key, const Args & ... args)
+{
+	string_array values = { args... };
+	return rpush(key, values);
+}
+
 }

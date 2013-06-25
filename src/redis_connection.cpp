@@ -33,11 +33,13 @@ bool connection::connect()
 		return false;
 	}
 
-	return select_database(db_);
+	return select(db_);
 }
 
 void connection::disconnect()
 {
+	quit();
+
 	if (context_)
 	{
 		redisFree(context_);
@@ -45,7 +47,7 @@ void connection::disconnect()
 	}
 }
 
-bool connection::active()
+bool connection::ping()
 {
 	redisReply* reply = (redisReply*)redisCommand(context_,  "PING");
 	if (reply == NULL)
@@ -66,7 +68,12 @@ redisReply* connection::send_command(int argc, char** argv, size_t* argvlen)
 	return reply;
 }
 
-bool connection::select_database(const int db)
+bool connection::auth(const string& password)
+{
+	return true;
+}
+
+bool connection::select(const int db)
 {
 	redisReply* reply = (redisReply*)redisCommand(context_,  "SELECT %d", db);
 	if (reply == NULL)
@@ -75,5 +82,9 @@ bool connection::select_database(const int db)
 	return recv_ok_reply(reply);
 }
 
+bool connection::quit()
+{
+	return true;
+}
 
 }

@@ -7,6 +7,7 @@
 namespace redis {
 
 array<string, BitOp_Num> bitop_strs = {"AND", "OR", "XOR", "NOT"};
+array<string, InsertDirection_Num> insert_direction_str = {"BEFORE", "AFTER"};
 
 client::client()
 {
@@ -561,5 +562,121 @@ int client::hlen(const string& key)
 	cmd << key;
 	return execute_and_get_int_reply(cmd);
 }
+
+int client::blpop(const string_array& keys, const int timeout, string_array& values)
+{
+	makecmd cmd("BLPOP");
+	cmd << keys << timeout;
+	return execute_and_get_string_array_reply(cmd, values);
+}
+
+int client::linsert(const string& key, InsertDirection direction, 
+	const int pivot, const string& value)
+{
+	makecmd cmd("LINSERT");
+	cmd << key << insert_direction_str[direction] << pivot << value;
+	return execute_and_get_int_reply(cmd);
+}
+
+
+int client::lindex(const string& key, const int index, string& value)
+{
+	makecmd cmd("LINDEX");
+	cmd << key << index;
+	return execute_and_get_string_reply(cmd, value);
+}
+
+int client::llen(const string& key)
+{
+	makecmd cmd("LLEN");
+	cmd << key;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::lpop(const string& key, string& value)
+{
+	makecmd cmd("LPOP");
+	cmd << key;
+	return execute_and_get_string_reply(cmd, value);
+}
+
+int client::lpush(const string& key, const string_array& values)
+{
+	makecmd cmd("LPUSH");
+	cmd << key << values;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::lpushx(const string& key, const string& value)
+{
+	makecmd cmd("LPUSHX");
+	cmd << key << value;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::lrange(const string& key, const int start, const int stop, string_array& values)
+{
+	makecmd cmd("LRANGE");
+	cmd << key << start << stop;
+	return execute_and_get_string_array_reply(cmd, values);
+}
+
+int client::lrem(const string& key, const int count, const string& value)
+{
+	makecmd cmd("LREM");
+	cmd << key << count << value;
+	return execute_and_get_int_reply(cmd);
+}
+
+bool client::lset(const string& key, const int count, const string& value)
+{
+	makecmd cmd("LSET");
+	cmd << key << count << value;
+	return execute_and_get_ok_reply(cmd);
+}
+
+bool client::ltrim(const string& key, const int start, const int stop)
+{
+	makecmd cmd("LTRIM");
+	cmd << key << start << stop;
+	return execute_and_get_ok_reply(cmd);
+}
+
+int client::rpop(const string& key, string& value)
+{
+	makecmd cmd("RPOP");
+	cmd << key;
+	return execute_and_get_string_reply(cmd, value);
+}
+
+int client::rpoplpush(const string& source, const string& destination, string_array& values)
+{
+	makecmd cmd("RPOPLPUSH");
+	cmd << source << destination;
+	return execute_and_get_string_array_reply(cmd, values);
+}
+
+int client::brpoplpush(const string& source, const string& destination, const int timeout, 
+	string_array& values)
+{
+	makecmd cmd("BRPOPLPUSH");
+	cmd << source << destination << timeout;
+	return execute_and_get_string_array_reply(cmd, values);
+}
+
+int client::rpush(const string& key, const string_array& values)
+{
+	makecmd cmd("RPUSH");
+	cmd << key << values;
+	return execute_and_get_int_reply(cmd);
+}
+
+int client::rpushx(const string& key, const string& value)
+{
+	makecmd cmd("RPUSHX");
+	cmd << key << value;
+	return execute_and_get_int_reply(cmd);
+}
+
 
 }

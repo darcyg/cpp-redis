@@ -63,6 +63,7 @@ TESTCASES = \
 	client_unittest.o \
 	string_unittest.o \
 	set_unittest.o \
+	list_unittest.o \
 	keys_unittest.o \
 	url_unittest.o
 
