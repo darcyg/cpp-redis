@@ -2,6 +2,7 @@
 #define REDIS_CONNECYION_POOL_HPP
 
 #include <queue>
+#include <mutex>
 #include "redis_connection.hpp"
 using namespace std;
 
@@ -28,7 +29,7 @@ private:
 	int size_;
 	int max_size_;
 
-	pthread_mutex_t lock_;
+	mutex mtx_;
 };
 
 class connection_guard {

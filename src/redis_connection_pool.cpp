@@ -1,6 +1,4 @@
-#include <errno.h>
 #include "redis_connection_pool.hpp"
-#include "mutex_guard.hpp"
 
 namespace redis {
 
@@ -8,13 +6,10 @@ connection_pool::connection_pool(const std::string& host, const int port, const 
 		const int size, const int max_size)
 	: host_(host), port_(port), db_(db), size_(size), max_size_(max_size)
 {
-	pthread_mutex_init(&lock_, NULL);
 }
 
 connection_pool::~connection_pool()
 {
-	pthread_mutex_destroy(&lock_);
-
 	while (!connq_.empty())
 	{
 		connection* conn = connq_.front();
@@ -43,7 +38,7 @@ int connection_pool::initialize()
 
 connection* connection_pool::acquire()
 {
-	mutex_guard guard(lock_);
+	lock_guard<mutex> lock(mtx_);
 	if (connq_.empty())
 	{
 		if (size_ < max_size_)
@@ -75,7 +70,7 @@ connection* connection_pool::acquire()
 
 void connection_pool::release(connection* conn)
 {
-	mutex_guard guard(lock_);
+	lock_guard<mutex> lock(mtx_);
 	connq_.push(conn);
 }
 

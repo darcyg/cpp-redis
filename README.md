@@ -1,6 +1,6 @@
 cpp-redis
 =========
 
-C++ redis client
+C++ Redis client
 
 Still in developping status, not released yet.
