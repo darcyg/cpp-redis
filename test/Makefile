@@ -13,7 +13,7 @@ CPPFLAGS += -I$(GTEST_DIR)/include -I$(DEPS_DIR) -I$(CPPREDIS_DIR)
 # Flags passed to the C++ compiler.
 CXXFLAGS += -g -Wall -Wextra -std=c++11
 
-LDLIBS = -L$(CPPREDIS_DIR) -lcppredis $(DEPS_DIR)/hiredis/libhiredis.a
+LDLIBS = -levent -L$(CPPREDIS_DIR) -lcppredis $(DEPS_DIR)/hiredis/libhiredis.a
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
@@ -65,7 +65,8 @@ TESTCASES = \
 	set_unittest.o \
 	list_unittest.o \
 	keys_unittest.o \
-	url_unittest.o
+	url_unittest.o \
+	async_unittest.o
 
 %.o:%.cpp
 	$(CXX)  $(CPPFLAGS) $(CXXFLAGS) -c $<

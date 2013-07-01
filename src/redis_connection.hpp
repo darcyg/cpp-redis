@@ -3,6 +3,8 @@
 
 #include <hiredis/hiredis.h>
 #include "redis_types.hpp"
+#include "redis_command.hpp"
+
 using namespace std;
 
 namespace redis {
@@ -19,7 +21,7 @@ public:
 	void disconnect();
 	bool ping();
 
-	redisReply* send_command(int argc, char** argv, size_t* argvlen);
+	redisReply* send_command(const rediscmd& cmd);
 
 private:
 	bool auth(const string& password);

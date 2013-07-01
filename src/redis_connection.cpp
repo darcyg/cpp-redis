@@ -60,9 +60,10 @@ bool connection::ping()
 	return ret;
 }
 
-redisReply* connection::send_command(int argc, char** argv, size_t* argvlen)
+redisReply* connection::send_command(const rediscmd& cmd)
 {
-	redisReply* reply = (redisReply*)redisCommandArgv(context_, argc, (const char**)argv, argvlen);
+	redisReply* reply = (redisReply*)redisCommandArgv(context_,
+		cmd.argc, (const char**)cmd.argv, cmd.argvlen);
 	if (reply == NULL)
 		throw command_exception(context_->errstr);
 	return reply;

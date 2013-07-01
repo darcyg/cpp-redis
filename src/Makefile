@@ -17,7 +17,9 @@ OBJS = \
 	redis_connection.o\
 	redis_connection_pool.o \
 	redis_client.o \
-	redis_url.o
+	redis_url.o \
+	async_connection.o \
+	async_service.o 
 
 all : build 
 	@echo

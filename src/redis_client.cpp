@@ -47,7 +47,7 @@ redisReply* client::execute(const rediscmd& cmd)
 	if (conn == NULL)
 		throw connection_exception("no available redis connection");
 
-	return conn->send_command(cmd.argc, cmd.argv, cmd.argvlen);
+	return conn->send_command(cmd);
 }
 
 bool client::execute_and_get_ok_reply(const rediscmd& cmd)

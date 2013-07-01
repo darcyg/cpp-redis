@@ -8,12 +8,7 @@ using namespace std;
 namespace redis {
 
 struct rediscmd {
-	rediscmd()
-	{
-		argc = 0;
-		argv = NULL;
-		argvlen = NULL;
-	}
+	rediscmd() : argc(0), argv(NULL), argvlen(NULL) {}
 
 	~rediscmd()
 	{
