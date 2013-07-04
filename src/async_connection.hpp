@@ -22,6 +22,8 @@ public:
 	void on_connect(int status);
 	void on_disconnect(int status);
 
+	int send_command(const rediscmd& cmd, redisCallbackFn* fn, void* privatedata);
+
 private:
 	redisAsyncContext* async_context_;
 	string host_;

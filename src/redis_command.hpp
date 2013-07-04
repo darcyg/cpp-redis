@@ -12,10 +12,8 @@ struct rediscmd {
 
 	~rediscmd()
 	{
-		if(argv)
-			delete [] argv;
-		if (argvlen)
-			delete [] argvlen;
+		if (argv) delete [] argv;
+		if (argvlen) delete [] argvlen;
 	}
 
 	void shallow_assign(const string_array& args)

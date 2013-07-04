@@ -25,7 +25,6 @@ async_connection::async_connection()
 
 async_connection::~async_connection()
 {
-    disconnect();
 }
 
 int async_connection::connect(const string& host, const int port, const int db)
@@ -48,6 +47,12 @@ int async_connection::connect(const string& host, const int port, const int db)
 void async_connection::disconnect()
 {
 	redisAsyncDisconnect(async_context_);
+}
+
+int async_connection::send_command(const rediscmd& cmd, redisCallbackFn* fn, void* privatedata)
+{
+    return redisAsyncCommandArgv(async_context_, fn, privatedata,
+        cmd.argc, (const char**)cmd.argv, cmd.argvlen);
 }
 
 void async_connection::on_connect(int status)

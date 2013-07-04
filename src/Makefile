@@ -9,7 +9,6 @@ LDOPTIONS =
 ALLINCLUDES = -I../deps
 LDLIBS = ../deps/hiredis/libhiredis.a
 
-
 CCFLAGS = $(CXXFLAGS) $(ALLINCLUDES)
 
 OBJS = \
@@ -19,7 +18,8 @@ OBJS = \
 	redis_client.o \
 	redis_url.o \
 	async_connection.o \
-	async_service.o 
+	async_service.o \
+	pubsub.o
 
 all : build 
 	@echo

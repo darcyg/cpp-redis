@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include "async_service.hpp"
 
 namespace redis {
@@ -12,6 +11,7 @@ async_service::async_service()
 
 async_service::~async_service()
 {
+	delete event_thread_;
 }
 
 async_service& async_service::instance()
