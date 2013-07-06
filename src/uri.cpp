@@ -1,4 +1,4 @@
-#include "redis_url.hpp"
+#include "uri.hpp"
 #include <cstring>
 #include <algorithm>
 
@@ -9,19 +9,19 @@ namespace redis {
 /*
  * <scheme>://<netloc>/<path>;<params>?<query>#<fragment>
  */
-bool parse_url(const string& in, url& u)
+bool Uri::parse(const string& url, Uri& uri)
 {
 	// check redis scheme
-	size_t pos = in.find("://");
+	size_t pos = url.find("://");
 	if (pos == string::npos)
 		return false;
 
-	string scheme = in.substr(0, pos);
+	string scheme = url.substr(0, pos);
 	if (strcasecmp(REDIS_SCHEME, scheme.c_str()) != 0)
 		return false;
 
 	// get netloc
-	string remain = in.substr(pos + 3);
+	string remain = url.substr(pos + 3);
 	string netloc;
 	pos = remain.find('/');
 	if (pos == string::npos)
@@ -45,15 +45,15 @@ bool parse_url(const string& in, url& u)
 		pos = userinfo.find(':');
 		if (pos == string::npos)
 			return false;
-		u.password = userinfo.substr(pos + 1);
+		uri.password = userinfo.substr(pos + 1);
 	}
 
 	// get host port
 	pos = netloc.find(':');
 	if (pos == string::npos)
 		return false;
-	u.host = netloc.substr(0, pos);
-	u.port = atoi(netloc.substr(pos + 1).c_str());
+	uri.host = netloc.substr(0, pos);
+	uri.port = atoi(netloc.substr(pos + 1).c_str());
 
 	// get db
 	if (!remain.empty())
@@ -66,9 +66,9 @@ bool parse_url(const string& in, url& u)
 			path = remain.substr(0, pos);
 
 		if (path.empty())
-			u.db = 0;
+			uri.db = 0;
 		else
-			u.db = atoi(path.c_str());
+			uri.db = atoi(path.c_str());
 	}
 
 	return true;

@@ -12,11 +12,11 @@ LDLIBS = ../deps/hiredis/libhiredis.a
 CCFLAGS = $(CXXFLAGS) $(ALLINCLUDES)
 
 OBJS = \
-	redis_reply.o \
+	reply.o \
 	redis_connection.o\
 	redis_connection_pool.o \
 	redis_client.o \
-	redis_url.o \
+	uri.o \
 	async_connection.o \
 	async_service.o \
 	pubsub.o

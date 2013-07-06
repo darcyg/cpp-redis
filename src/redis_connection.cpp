@@ -1,5 +1,5 @@
 #include <cstring>
-#include "redis_reply.hpp"
+#include "reply.hpp"
 #include "redis_connection.hpp"
 #include "redis_exception.hpp"
 

@@ -1,8 +1,8 @@
-#ifndef REDIS_COMMAND_HPP
-#define REDIS_COMMAND_HPP
+#ifndef COMMAND_HPP
+#define COMMAND_HPP
 
 #include <sstream>
-#include "redis_types.hpp"
+#include "types.hpp"
 using namespace std;
 
 namespace redis {

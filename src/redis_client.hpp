@@ -1,8 +1,8 @@
 #ifndef REDIS_CLIENT_HPP
 #define REDIS_CLIENT_HPP
 
-#include "redis_types.hpp"
-#include "redis_command.hpp"
+#include "types.hpp"
+#include "command.hpp"
 #include "redis_connection_pool.hpp"
 
 using namespace std;

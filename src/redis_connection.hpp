@@ -2,8 +2,7 @@
 #define REDIS_CONNECTION_HPP
 
 #include <hiredis/hiredis.h>
-#include "redis_types.hpp"
-#include "redis_command.hpp"
+#include "command.hpp"
 
 using namespace std;
 

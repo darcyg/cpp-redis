@@ -1,8 +1,8 @@
 #include "redis_client.hpp"
-#include "redis_command.hpp"
-#include "redis_reply.hpp"
+#include "command.hpp"
+#include "reply.hpp"
 #include "redis_exception.hpp"
-#include "redis_url.hpp"
+#include "uri.hpp"
 
 namespace redis {
 
@@ -25,13 +25,13 @@ int client::connect(const string& host, const int port, const int db,
 	return pool_->initialize();
 }
 
-int client::connect_with_url(const string& uri)
+int client::connect_with_url(const string& url)
 {
-	url redis_url;
-	if (parse_url(uri, redis_url) == false)
+	Uri uri;
+	if (Uri::parse(url, uri) == false)
 		return -1;
 
-	return this->connect(redis_url.host, redis_url.port, redis_url.db);
+	return this->connect(uri.host, uri.port, uri.db);
 }
 
 void client::close()

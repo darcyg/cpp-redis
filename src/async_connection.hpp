@@ -4,7 +4,7 @@
 #include <string>
 #include <hiredis/hiredis.h>
 #include <hiredis/async.h>
-#include "redis_command.hpp"
+#include "command.hpp"
 
 using namespace std;
 

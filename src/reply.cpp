@@ -1,6 +1,6 @@
 #include <cstring>
 #include <cstdlib>
-#include "redis_reply.hpp"
+#include "reply.hpp"
 #include "redis_exception.hpp"
 
 namespace redis {

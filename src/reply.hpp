@@ -2,7 +2,7 @@
 #define REDIS_REPLY_HPP
 
 #include <hiredis/hiredis.h>
-#include "redis_types.hpp"
+#include "types.hpp"
 
 namespace redis {
 
