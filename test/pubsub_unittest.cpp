@@ -25,17 +25,13 @@ TEST_F(PubSubTest, pubsub)
     EXPECT_EQ(0, sub.connect("redis://localhost::6379"));
     sub.subscribe("foo", "bar"); 
     sub.psubscribe("test*", "zoo*");
-    
-    sub.set_listener(new TestListener());
-/*
-    sub.unsubscribe("foo");
-    sub.unsubscribe("bar");
 
-    sub.punsubscribe("test*", "zoo*");
-*/
-    sleep(600);
+    sub.set_listener(new TestListener());
+
+    for (int i = 0; i < 10; i++)
+        rc_.publish("foo", "test");
+
     redis::async_service::instance().stop();
     
-
     EXPECT_TRUE(true);
 }

@@ -20,7 +20,14 @@ int Subscriber::connect(const string& url)
     if (!Uri::parse(url, uri))
         return -1;
 
+    async_conn_ = new async_connection();
     return async_conn_->connect(uri.host, uri.port, uri.db);
+}
+
+int Subscriber::reconnect()
+{
+    // reconnect and re-subscribe all channels & patterns
+    return 0;
 }
 
 void Subscriber::set_listener(Listener* listener)
@@ -31,21 +38,25 @@ void Subscriber::set_listener(Listener* listener)
 void Subscriber::on_subscribe(const string& channel, const int subscribed_channels)
 {
     cout << channel << '\t' << subscribed_channels << endl;
+    channels_.insert(channel);
 }
 
 void Subscriber::on_unsubscribe(const string& channel, const int subscribed_channels)
 {
     cout << channel << '\t' << subscribed_channels << endl;
+    channels_.erase(channel);
 }
 
 void Subscriber::on_psubscribe(const string& pattern, const int subscribed_patterns)
 {
     cout << pattern << '\t' << subscribed_patterns << endl;
+    patterns_.insert(pattern);
 }
 
 void Subscriber::on_punsubscribe(const string& pattern, const int subscribed_patterns)
 {
     cout << pattern << '\t' << subscribed_patterns << endl;
+    patterns_.erase(pattern);
 }
 
 void Subscriber::on_message(const string& channel, const string& message)
@@ -65,9 +76,7 @@ void Subscriber::sub_callback(redisAsyncContext *ac, void* r, void* privatedata)
 
     if (reply == NULL)
         return;
-
-    cout << reply->elements << endl;
-
+    
     for (int index = 0; index < reply->elements; ++index)
     {
         if (strncmp(SUBSCRIBE, reply->element[index]->str, reply->element[index]->len) == 0)

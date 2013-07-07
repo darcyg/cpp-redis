@@ -15,6 +15,8 @@ public:
 class Subscriber {
 public:
     int connect(const string& url);
+    int reconnect();
+
     void set_listener(Listener* listener);
 
     void on_subscribe(const string& channel, const int subscribed_channels);
@@ -47,7 +49,7 @@ public:
     void psubscribe(const Args & ... args)
     {
         string_array patterns = { args... };
-        makecmd cmd("SUBSCRIBE");
+        makecmd cmd("PSUBSCRIBE");
         cmd << patterns;
         async_conn_->send_command(cmd, sub_callback, this);
     }
@@ -66,8 +68,8 @@ public:
 
 private:
     async_connection* async_conn_;
-    string_array channels_;
-    string_array patterns_;
+    string_set channels_;
+    string_set patterns_;
     Listener* listener_;
 };
 

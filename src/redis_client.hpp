@@ -196,6 +196,7 @@ public:
 
 	int rpushx(const string& key, const string& value);
 
+	int publish(const string& channel, const string& message);
 
 private:
 	redisReply* execute(const rediscmd& cmd);

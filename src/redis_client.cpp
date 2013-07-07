@@ -678,5 +678,12 @@ int client::rpushx(const string& key, const string& value)
 	return execute_and_get_int_reply(cmd);
 }
 
+int client::publish(const string& channel, const string& message)
+{
+	makecmd cmd("PUBLISH");
+	cmd << channel << message;
+	return execute_and_get_int_reply(cmd);
+}
+
 
 }
