@@ -7,50 +7,50 @@ using namespace std;
 
 namespace redis {
 
-class redis_exception : public exception {
+class RedisException : public exception {
 public:
-	redis_exception(const string & err) throw ()
-		: err_(err)
-	{
-	}
+    RedisException(const string & err) throw ()
+        : err_(err)
+    {
+    }
 
-	virtual ~redis_exception() throw ()
-	{
-	}
+    virtual ~RedisException() throw ()
+    {
+    }
 
-	operator const string() const throw ()
-	{
-		return err_;
-	}
+    operator const string() const throw ()
+    {
+        return err_;
+    }
 
-	virtual const char* what() const throw ()
-	{
-		return err_.c_str();
-	}
+    virtual const char* what() const throw ()
+    {
+        return err_.c_str();
+    }
 
 private:
-	string err_;
+    string err_;
 };
 
 // Some socket-level I/O or general connection error.
-class connection_exception : public redis_exception
+class ConnectionException : public RedisException
 {
 public:
-	connection_exception(const string & err) : redis_exception(err) {}
+    ConnectionException(const string & err) : RedisException(err) {}
 };
 
 // Bad command
-class command_exception : public redis_exception
+class CommandException : public RedisException
 {
 public:
-	command_exception(const string & err) : redis_exception(err) {}
+    CommandException(const string & err) : RedisException(err) {}
 };
 
 // A value of an expected type or other semantics was found to be invalid.
-class value_exception : public redis_exception
+class ValueException : public RedisException
 {
 public:
-	value_exception(const string & err) : redis_exception(err) {};
+    ValueException(const string & err) : RedisException(err) {};
 };
 
 }

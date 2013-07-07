@@ -31,7 +31,7 @@ public:
     void subscribe(const Args & ... args)
     {
         string_array channels = { args... };
-        makecmd cmd("SUBSCRIBE");
+        MakeCmd cmd("SUBSCRIBE");
         cmd << channels;
         async_conn_->send_command(cmd, sub_callback, this);
     }
@@ -40,7 +40,7 @@ public:
     void unsubscribe(const Args & ... args)
     {
         string_array channels = { args... };
-        makecmd cmd("UNSUBSCRIBE");
+        MakeCmd cmd("UNSUBSCRIBE");
         cmd << channels;
         async_conn_->send_command(cmd, sub_callback, this);
     }
@@ -49,7 +49,7 @@ public:
     void psubscribe(const Args & ... args)
     {
         string_array patterns = { args... };
-        makecmd cmd("PSUBSCRIBE");
+        MakeCmd cmd("PSUBSCRIBE");
         cmd << patterns;
         async_conn_->send_command(cmd, sub_callback, this);
     }
@@ -58,7 +58,7 @@ public:
     void punsubscribe(const Args & ... args)
     {
         string_array patterns = { args... };
-        makecmd cmd("PUNSUBSCRIBE");
+        MakeCmd cmd("PUNSUBSCRIBE");
         cmd << patterns;
         async_conn_->send_command(cmd, sub_callback, this);
     }
@@ -67,10 +67,10 @@ public:
     static void sub_callback(redisAsyncContext *ac, void* reply, void* privatedata);
 
 private:
-    async_connection* async_conn_;
+    AsyncConnection* async_conn_;
+    Listener* listener_;
     string_set channels_;
     string_set patterns_;
-    Listener* listener_;
 };
 
 }

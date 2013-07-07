@@ -9,681 +9,680 @@ namespace redis {
 array<string, BitOp_Num> bitop_strs = {"AND", "OR", "XOR", "NOT"};
 array<string, InsertDirection_Num> insert_direction_str = {"BEFORE", "AFTER"};
 
-client::client()
+Client::Client()
 {
 }
 
-client::~client()
+Client::~Client()
 {
-	delete pool_;
+    delete pool_;
 }
 
-int client::connect(const string& host, const int port, const int db,
-		const int pool_size, const int max_pool_size)
+int Client::connect(const string& host, const int port, const int db,
+        const int pool_size, const int max_pool_size)
 {
-	pool_ = new connection_pool(host, port, db, pool_size, max_pool_size);
-	return pool_->initialize();
+    pool_ = new ConnectionPool(host, port, db, pool_size, max_pool_size);
+    return pool_->initialize();
 }
 
-int client::connect_with_url(const string& url)
+int Client::connect_with_url(const string& url)
 {
-	Uri uri;
-	if (Uri::parse(url, uri) == false)
-		return -1;
+    Uri uri;
+    if (Uri::parse(url, uri) == false)
+        return -1;
 
-	return this->connect(uri.host, uri.port, uri.db);
+    return this->connect(uri.host, uri.port, uri.db);
 }
 
-void client::close()
+void Client::close()
 {
-	delete pool_;
-	pool_ = NULL;
+    delete pool_;
+    pool_ = NULL;
 }
 
-redisReply* client::execute(const rediscmd& cmd)
+redisReply* Client::execute(const RedisCmd& cmd)
 {
-	connection_guard guard = connection_guard(pool_);
-	connection* conn = guard.get_connection();
-	if (conn == NULL)
-		throw connection_exception("no available redis connection");
+    ConnectionGuard guard = ConnectionGuard(pool_);
+    Connection* conn = guard.get_connection();
+    if (conn == NULL)
+        throw ConnectionException("no available redis Connection");
 
-	return conn->send_command(cmd);
+    return conn->send_command(cmd);
 }
 
-bool client::execute_and_get_ok_reply(const rediscmd& cmd)
+bool Client::execute_and_get_ok_reply(const RedisCmd& cmd)
 {
-	redisReply* reply = execute(cmd);
-	return recv_ok_reply(reply);
+    redisReply* reply = execute(cmd);
+    return recv_ok_reply(reply);
 }
 
-string client::execute_and_get_status_reply(const rediscmd& cmd)
+string Client::execute_and_get_status_reply(const RedisCmd& cmd)
 {
-	redisReply* reply = execute(cmd);
-	return recv_status_reply(reply);
+    redisReply* reply = execute(cmd);
+    return recv_status_reply(reply);
 }
 
-int client::execute_and_get_int_reply(const rediscmd& cmd)
+int Client::execute_and_get_int_reply(const RedisCmd& cmd)
 {
-	redisReply* reply = execute(cmd);
-	return recv_int_reply(reply);
+    redisReply* reply = execute(cmd);
+    return recv_int_reply(reply);
 }
 
-float client::execute_and_get_float_reply(const rediscmd& cmd)
+float Client::execute_and_get_float_reply(const RedisCmd& cmd)
 {
-	redisReply* reply = execute(cmd);
-	return recv_float_reply(reply);
+    redisReply* reply = execute(cmd);
+    return recv_float_reply(reply);
 }
 
-int client::execute_and_get_string_reply(const rediscmd& cmd, string& value)
+int Client::execute_and_get_string_reply(const RedisCmd& cmd, string& value)
 {
-	redisReply* reply = execute(cmd);
-	return recv_string_reply(reply, value);
+    redisReply* reply = execute(cmd);
+    return recv_string_reply(reply, value);
 }
 
-int client::execute_and_get_string_array_reply(const rediscmd& cmd, string_array& arr)
+int Client::execute_and_get_string_array_reply(const RedisCmd& cmd, string_array& arr)
 {
-	redisReply* reply = execute(cmd);
-	return recv_string_array_reply(reply, arr);
+    redisReply* reply = execute(cmd);
+    return recv_string_array_reply(reply, arr);
 }
 
-int client::execute_and_get_string_set_reply(const rediscmd& cmd, string_set& s)
+int Client::execute_and_get_string_set_reply(const RedisCmd& cmd, string_set& s)
 {
-	redisReply* reply = execute(cmd);
-	return recv_string_set_reply(reply, s);
+    redisReply* reply = execute(cmd);
+    return recv_string_set_reply(reply, s);
 }
 
-int client::execute_and_get_string_map_reply(const rediscmd& cmd, const string_array& keys, 
-	string_map& m)
+int Client::execute_and_get_string_map_reply(const RedisCmd& cmd, const string_array& keys, 
+    string_map& m)
 {
-	redisReply* reply = execute(cmd);
-	return recv_string_map_reply(reply, keys, m);
+    redisReply* reply = execute(cmd);
+    return recv_string_map_reply(reply, keys, m);
 }
 
-int client::execute_and_get_string_hash_map_reply(const rediscmd& cmd, string_hash_map& h)
+int Client::execute_and_get_string_hash_map_reply(const RedisCmd& cmd, string_hash_map& h)
 {
-	redisReply* reply = execute(cmd);
-	return recv_string_hash_map_reply(reply, h);
+    redisReply* reply = execute(cmd);
+    return recv_string_hash_map_reply(reply, h);
 }
 
-int client::execute_and_get_string_hash_map_reply(const rediscmd& cmd, const string_array& fields, 
-	string_hash_map& h)
+int Client::execute_and_get_string_hash_map_reply(const RedisCmd& cmd, const string_array& fields, 
+    string_hash_map& h)
 {
-	redisReply* reply = execute(cmd);
-	return recv_string_hash_map_reply(reply, fields, h);
+    redisReply* reply = execute(cmd);
+    return recv_string_hash_map_reply(reply, fields, h);
 }
 
-bool client::set(const string& key, const string& value)
+bool Client::set(const string& key, const string& value)
 {
-	makecmd cmd("SET");
-	cmd << key << value;
-	return execute_and_get_ok_reply(cmd);
+    MakeCmd cmd("SET");
+    cmd << key << value;
+    return execute_and_get_ok_reply(cmd);
 }
 
-bool client::setex(const string& key, const string& value, const int seconds)
+bool Client::setex(const string& key, const string& value, const int seconds)
 {
-	if (seconds <= 0)
-		return false;
+    if (seconds <= 0)
+        return false;
 
-	makecmd cmd("SETEX");
-	cmd << key << seconds << value;
-	return execute_and_get_ok_reply(cmd);
+    MakeCmd cmd("SETEX");
+    cmd << key << seconds << value;
+    return execute_and_get_ok_reply(cmd);
 }
 
-bool client::psetex(const string& key, const string& value, const int milliseconds)
+bool Client::psetex(const string& key, const string& value, const int milliseconds)
 {
-	if (milliseconds <= 0)
-		return false;
+    if (milliseconds <= 0)
+        return false;
 
-	makecmd cmd("SETEX");
-	cmd << key << milliseconds << value;
-	return execute_and_get_ok_reply(cmd);
+    MakeCmd cmd("SETEX");
+    cmd << key << milliseconds << value;
+    return execute_and_get_ok_reply(cmd);
 }
 
-int client::setnx(const string& key, const string& value)
+int Client::setnx(const string& key, const string& value)
 {
-	makecmd cmd("SETNX");
-	cmd << key << value;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("SETNX");
+    cmd << key << value;
+    return execute_and_get_int_reply(cmd);
 }
 
-bool client::mset(const string_map& kv_map)
+bool Client::mset(const string_map& kv_map)
 {
-	makecmd cmd("MSET");
-	cmd << kv_map;
-	return execute_and_get_ok_reply(cmd);
+    MakeCmd cmd("MSET");
+    cmd << kv_map;
+    return execute_and_get_ok_reply(cmd);
 }
 
-int client::msetnx(const string_map& kv_map)
+int Client::msetnx(const string_map& kv_map)
 {
-	makecmd cmd("MSETNX");
-	cmd << kv_map;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("MSETNX");
+    cmd << kv_map;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::get(const std::string& key, string& value)
+int Client::get(const std::string& key, string& value)
 {
-	makecmd cmd("GET");
-	cmd << key;
-	return execute_and_get_string_reply(cmd, value);
+    MakeCmd cmd("GET");
+    cmd << key;
+    return execute_and_get_string_reply(cmd, value);
 }
 
-int client::mget(const string_array& keys, string_map& kv_map)
+int Client::mget(const string_array& keys, string_map& kv_map)
 {
-	makecmd cmd("MGET");
-	cmd << keys;
-	return execute_and_get_string_map_reply(cmd, keys, kv_map);
+    MakeCmd cmd("MGET");
+    cmd << keys;
+    return execute_and_get_string_map_reply(cmd, keys, kv_map);
 }
 
-int client::getset(const string& key, const string& value, string& original)
+int Client::getset(const string& key, const string& value, string& original)
 {
-	makecmd cmd("GETSET");
-	cmd << key << value;
-	return execute_and_get_string_reply(cmd, original);
+    MakeCmd cmd("GETSET");
+    cmd << key << value;
+    return execute_and_get_string_reply(cmd, original);
 }
 
-int client::setrange(const string& key, const int offset, const string& value)
+int Client::setrange(const string& key, const int offset, const string& value)
 {
-	makecmd cmd("SETRANGE");
-	cmd << key << offset << value;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("SETRANGE");
+    cmd << key << offset << value;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::getrange(const string& key, const int start, const int end, string& substring)
+int Client::getrange(const string& key, const int start, const int end, string& substring)
 {
-	makecmd cmd("GETRANGE");
-	cmd << key << start << end;
-	return execute_and_get_string_reply(cmd, substring);
+    MakeCmd cmd("GETRANGE");
+    cmd << key << start << end;
+    return execute_and_get_string_reply(cmd, substring);
 }
 
-int client::append(const string& key, const string& value)
+int Client::append(const string& key, const string& value)
 {
-	makecmd cmd("APPEND");
-	cmd << key << value;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("APPEND");
+    cmd << key << value;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::incr(const string& key)
+int Client::incr(const string& key)
 {
-	makecmd cmd("INCR");
-	cmd << key;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("INCR");
+    cmd << key;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::incrby(const string& key, const int increment)
+int Client::incrby(const string& key, const int increment)
 {
-	makecmd cmd("INCRBY");
-	cmd << key << increment;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("INCRBY");
+    cmd << key << increment;
+    return execute_and_get_int_reply(cmd);
 }
 
-float client::incrbyfloat(const string& key, const float increment)
+float Client::incrbyfloat(const string& key, const float increment)
 {
-	makecmd cmd("INCRBYFLOAT");
-	cmd << key << increment;
-	return execute_and_get_float_reply(cmd);
+    MakeCmd cmd("INCRBYFLOAT");
+    cmd << key << increment;
+    return execute_and_get_float_reply(cmd);
 }
 
-int client::decr(const string& key)
+int Client::decr(const string& key)
 {
-	makecmd cmd("DECR");
-	cmd << key;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("DECR");
+    cmd << key;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::decrby(const string& key, const int increment)
+int Client::decrby(const string& key, const int increment)
 {
-	makecmd cmd("DECRBY");
-	cmd << key << increment;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("DECRBY");
+    cmd << key << increment;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::strlen(const string& key)
+int Client::strlen(const string& key)
 {
-	makecmd cmd("STRLEN");
-	cmd << key;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("STRLEN");
+    cmd << key;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::setbit(const string& key, const int offset, const int value)
+int Client::setbit(const string& key, const int offset, const int value)
 {
-	makecmd cmd("SETBIT");
-	cmd << key << offset << value;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("SETBIT");
+    cmd << key << offset << value;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::getbit(const string& key, const int offset)
+int Client::getbit(const string& key, const int offset)
 {
-	makecmd cmd("GETBIT");
-	cmd << key << offset;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("GETBIT");
+    cmd << key << offset;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::bitcount(const string& key)
+int Client::bitcount(const string& key)
 {
-	makecmd cmd("BITCOUNT");
-	cmd << key;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("BITCOUNT");
+    cmd << key;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::bitcount(const string& key, const int start)
+int Client::bitcount(const string& key, const int start)
 {
-	makecmd cmd("BITCOUNT");
-	cmd << key << start;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("BITCOUNT");
+    cmd << key << start;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::bitcount(const string& key, const int start, const int end)
+int Client::bitcount(const string& key, const int start, const int end)
 {
-	makecmd cmd("BITCOUNT");
-	cmd << key << start << end;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("BITCOUNT");
+    cmd << key << start << end;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::bitop(const BitOp operation, const string& destkey, const string_array& keys)
+int Client::bitop(const BitOp operation, const string& destkey, const string_array& keys)
 {
-	if (keys.empty())
-		return -1;
+    if (keys.empty())
+        return -1;
 
-	makecmd cmd("BITOP");
-	cmd << bitop_strs[operation] << destkey << keys;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("BITOP");
+    cmd << bitop_strs[operation] << destkey << keys;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::exists(const std::string& key)
+int Client::exists(const std::string& key)
 {
-	makecmd cmd("EXISTS");
-	cmd << key;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("EXISTS");
+    cmd << key;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::expire(const string& key, const unsigned int seconds)
+int Client::expire(const string& key, const unsigned int seconds)
 {
-	makecmd cmd("EXPIRE");
-	cmd << key << seconds;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("EXPIRE");
+    cmd << key << seconds;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::expireat(const string& key, const unsigned int timestamp)
+int Client::expireat(const string& key, const unsigned int timestamp)
 {
-	makecmd cmd("EXPIREAT");
-	cmd << key << timestamp;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("EXPIREAT");
+    cmd << key << timestamp;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::pexpire(const string& key, const unsigned int milliseconds)
+int Client::pexpire(const string& key, const unsigned int milliseconds)
 {
-	makecmd cmd("PEXPIRE");
-	cmd << key << milliseconds;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("PEXPIRE");
+    cmd << key << milliseconds;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::pexpireat(const string& key, const unsigned int milliseconds_timestamp)
+int Client::pexpireat(const string& key, const unsigned int milliseconds_timestamp)
 {
-	makecmd cmd("PEXPIREAT");
-	cmd << key << milliseconds_timestamp;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("PEXPIREAT");
+    cmd << key << milliseconds_timestamp;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::ttl(const string& key)
+int Client::ttl(const string& key)
 {
-	makecmd cmd("TTL");
-	cmd << key;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("TTL");
+    cmd << key;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::pttl(const string& key)
+int Client::pttl(const string& key)
 {
-	makecmd cmd("PTTL");
-	cmd << key;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("PTTL");
+    cmd << key;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::persist(const string& key)
+int Client::persist(const string& key)
 {
-	makecmd cmd("PERSIST");
-	cmd << key;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("PERSIST");
+    cmd << key;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::keys(const std::string& pattern, string_array& arr)
+int Client::keys(const std::string& pattern, string_array& arr)
 {
-	makecmd cmd("KEYS");
-	cmd << pattern;
-	return execute_and_get_string_array_reply(cmd, arr);
+    MakeCmd cmd("KEYS");
+    cmd << pattern;
+    return execute_and_get_string_array_reply(cmd, arr);
 }
 
-int client::del(const string_array& keys)
+int Client::del(const string_array& keys)
 {
-	makecmd cmd("DEL");
-	cmd << keys;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("DEL");
+    cmd << keys;
+    return execute_and_get_int_reply(cmd);
 }
 
-string client::type(const string& key)
+string Client::type(const string& key)
 {
-	makecmd cmd("TYPE");
-	cmd << key;
-	return execute_and_get_status_reply(cmd);
+    MakeCmd cmd("TYPE");
+    cmd << key;
+    return execute_and_get_status_reply(cmd);
 }
 
-int client::scard(const std::string& key)
+int Client::scard(const std::string& key)
 {
-	makecmd cmd("SCARD");
-	cmd << key;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("SCARD");
+    cmd << key;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::sadd(const string& key, const string_array& members)
+int Client::sadd(const string& key, const string_array& members)
 {
-	if (members.empty())
-		return 0;
+    if (members.empty())
+        return 0;
 
-	makecmd cmd("SADD");
-	cmd << key << members;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("SADD");
+    cmd << key << members;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::sdiff(const string_array& keys, string_set& s)
+int Client::sdiff(const string_array& keys, string_set& s)
 {
-	s.clear();
-	if (keys.empty())
-		return 0;
+    s.clear();
+    if (keys.empty())
+        return 0;
 
-	makecmd cmd("SDIFF");
-	cmd << keys;
-	return execute_and_get_string_set_reply(cmd, s);
+    MakeCmd cmd("SDIFF");
+    cmd << keys;
+    return execute_and_get_string_set_reply(cmd, s);
 }
 
-int client::sdiffstore(const string& destination, const string_array& keys)
+int Client::sdiffstore(const string& destination, const string_array& keys)
 {
-	makecmd cmd("SDIFFSTORE");
-	cmd << destination << keys;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("SDIFFSTORE");
+    cmd << destination << keys;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::sinter(const string_array& keys, string_set& s)
+int Client::sinter(const string_array& keys, string_set& s)
 {
-	s.clear();
-	if (keys.empty())
-		return 0;
+    s.clear();
+    if (keys.empty())
+        return 0;
 
-	makecmd cmd("SINTER");
-	cmd << keys;
-	return execute_and_get_string_set_reply(cmd, s);
+    MakeCmd cmd("SINTER");
+    cmd << keys;
+    return execute_and_get_string_set_reply(cmd, s);
 }
 
-int client::sinterstore(const string& destination, const string_array& keys)
+int Client::sinterstore(const string& destination, const string_array& keys)
 {
-	makecmd cmd("SINTERSTORE");
-	cmd << destination << keys;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("SINTERSTORE");
+    cmd << destination << keys;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::smembers(const string& key, string_set& members)
+int Client::smembers(const string& key, string_set& members)
 {
-	makecmd cmd("SMEMBERS");
-	cmd << key;
-	return execute_and_get_string_set_reply(cmd, members);
+    MakeCmd cmd("SMEMBERS");
+    cmd << key;
+    return execute_and_get_string_set_reply(cmd, members);
 }
 
-int client::sismember(const std::string& key, const std::string& member)
+int Client::sismember(const std::string& key, const std::string& member)
 {
-	makecmd cmd("SISMEMBER");
-	cmd << key << member;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("SISMEMBER");
+    cmd << key << member;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::smove(const string& source, const string& destination, const string& member)
+int Client::smove(const string& source, const string& destination, const string& member)
 {
-	makecmd cmd("SMOVE");
-	cmd << source << destination << member;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("SMOVE");
+    cmd << source << destination << member;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::spop(const string& key, string& member)
+int Client::spop(const string& key, string& member)
 {
-	makecmd cmd("SPOP");
-	cmd << key;
-	return execute_and_get_string_reply(cmd, member);
+    MakeCmd cmd("SPOP");
+    cmd << key;
+    return execute_and_get_string_reply(cmd, member);
 }
 
-int client::srandmember(const string& key, const int count, string_array& members)
+int Client::srandmember(const string& key, const int count, string_array& members)
 {
-	makecmd cmd("SRANDMEMBER");
-	cmd << key << count;
-	return execute_and_get_string_array_reply(cmd, members);
+    MakeCmd cmd("SRANDMEMBER");
+    cmd << key << count;
+    return execute_and_get_string_array_reply(cmd, members);
 }
 
-int client::srem(const std::string& key, const std::string& member)
+int Client::srem(const std::string& key, const std::string& member)
 {
-	makecmd cmd("SREM");
-	cmd << key << member;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("SREM");
+    cmd << key << member;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::sunion(const string_array& keys, string_set& s)
+int Client::sunion(const string_array& keys, string_set& s)
 {
-	s.clear();
-	if (keys.empty())
-		return 0;
+    s.clear();
+    if (keys.empty())
+        return 0;
 
-	makecmd cmd("SUNION");
-	cmd << keys;
-	return execute_and_get_string_set_reply(cmd, s);
+    MakeCmd cmd("SUNION");
+    cmd << keys;
+    return execute_and_get_string_set_reply(cmd, s);
 }
 
-int client::sunionstore(const string& destination, const string_array& keys)
+int Client::sunionstore(const string& destination, const string_array& keys)
 {
-	makecmd cmd("SUNIONSTORE");
-	cmd << destination << keys;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("SUNIONSTORE");
+    cmd << destination << keys;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::hget(const string& key, const string& field, string& value)
+int Client::hget(const string& key, const string& field, string& value)
 {
-	makecmd cmd("HGET");
-	cmd << key << field;
-	return execute_and_get_string_reply(cmd, value);
+    MakeCmd cmd("HGET");
+    cmd << key << field;
+    return execute_and_get_string_reply(cmd, value);
 }
 
-int client::hmget(const string& key, const string_array& fields, string_hash_map& h)
+int Client::hmget(const string& key, const string_array& fields, string_hash_map& h)
 {
-	makecmd cmd("HMGET");
-	cmd << key << fields;
-	return execute_and_get_string_hash_map_reply(cmd, fields, h);
+    MakeCmd cmd("HMGET");
+    cmd << key << fields;
+    return execute_and_get_string_hash_map_reply(cmd, fields, h);
 }
 
-int client::hset(const string& key, const string& field, const string& value)
+int Client::hset(const string& key, const string& field, const string& value)
 {
-	makecmd cmd("HSET");
-	cmd << key << field << value;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("HSET");
+    cmd << key << field << value;
+    return execute_and_get_int_reply(cmd);
 }
 
-bool client::hmset(const string& key, const string_hash_map& h)
+bool Client::hmset(const string& key, const string_hash_map& h)
 {
-	makecmd cmd("HMSET");
-	cmd << key << h;
-	return execute_and_get_ok_reply(cmd);
+    MakeCmd cmd("HMSET");
+    cmd << key << h;
+    return execute_and_get_ok_reply(cmd);
 }
 
-int client::hsetnx(const string& key, const string& field, const string& value)
+int Client::hsetnx(const string& key, const string& field, const string& value)
 {
-	makecmd cmd("HSETNX");
-	cmd << key << field << value;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("HSETNX");
+    cmd << key << field << value;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::hexists(const string& key, const string& field)
+int Client::hexists(const string& key, const string& field)
 {
-	makecmd cmd("HEXISTS");
-	cmd << key << field;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("HEXISTS");
+    cmd << key << field;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::hincrby(const string& key, const string& field, const int increment)
+int Client::hincrby(const string& key, const string& field, const int increment)
 {
-	makecmd cmd("HINCRBY");
-	cmd << key << field << increment;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("HINCRBY");
+    cmd << key << field << increment;
+    return execute_and_get_int_reply(cmd);
 }
 
-float client::hincrbyfloat(const string& key, const string& filed, const float increment)
+float Client::hincrbyfloat(const string& key, const string& filed, const float increment)
 {
-	makecmd cmd("HINCRBYFLOAT");
-	cmd << key << filed << increment;
-	return execute_and_get_float_reply(cmd);
+    MakeCmd cmd("HINCRBYFLOAT");
+    cmd << key << filed << increment;
+    return execute_and_get_float_reply(cmd);
 }
 
-int client::hkeys(const string& key, string_array& fields)
+int Client::hkeys(const string& key, string_array& fields)
 {
-	makecmd cmd("HKEYS");
-	cmd << key;
-	return execute_and_get_string_array_reply(cmd, fields);
+    MakeCmd cmd("HKEYS");
+    cmd << key;
+    return execute_and_get_string_array_reply(cmd, fields);
 }
 
-int client::hvals(const string& key, string_array& values)
+int Client::hvals(const string& key, string_array& values)
 {
-	makecmd cmd("HVALS");
-	cmd << key;
-	return execute_and_get_string_array_reply(cmd, values);
+    MakeCmd cmd("HVALS");
+    cmd << key;
+    return execute_and_get_string_array_reply(cmd, values);
 }
 
-int client::hgetall(const string& key, string_hash_map& h)
+int Client::hgetall(const string& key, string_hash_map& h)
 {
-	makecmd cmd("HGETALL");
-	cmd << key;
-	return execute_and_get_string_hash_map_reply(cmd, h);
+    MakeCmd cmd("HGETALL");
+    cmd << key;
+    return execute_and_get_string_hash_map_reply(cmd, h);
 }
 
-int client::hlen(const string& key)
+int Client::hlen(const string& key)
 {
-	makecmd cmd("HLEN");
-	cmd << key;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("HLEN");
+    cmd << key;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::blpop(const string_array& keys, const int timeout, string_array& values)
+int Client::blpop(const string_array& keys, const int timeout, string_array& values)
 {
-	makecmd cmd("BLPOP");
-	cmd << keys << timeout;
-	return execute_and_get_string_array_reply(cmd, values);
+    MakeCmd cmd("BLPOP");
+    cmd << keys << timeout;
+    return execute_and_get_string_array_reply(cmd, values);
 }
 
-int client::linsert(const string& key, InsertDirection direction, 
-	const int pivot, const string& value)
+int Client::linsert(const string& key, InsertDirection direction, 
+    const int pivot, const string& value)
 {
-	makecmd cmd("LINSERT");
-	cmd << key << insert_direction_str[direction] << pivot << value;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("LINSERT");
+    cmd << key << insert_direction_str[direction] << pivot << value;
+    return execute_and_get_int_reply(cmd);
 }
 
 
-int client::lindex(const string& key, const int index, string& value)
+int Client::lindex(const string& key, const int index, string& value)
 {
-	makecmd cmd("LINDEX");
-	cmd << key << index;
-	return execute_and_get_string_reply(cmd, value);
+    MakeCmd cmd("LINDEX");
+    cmd << key << index;
+    return execute_and_get_string_reply(cmd, value);
 }
 
-int client::llen(const string& key)
+int Client::llen(const string& key)
 {
-	makecmd cmd("LLEN");
-	cmd << key;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("LLEN");
+    cmd << key;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::lpop(const string& key, string& value)
+int Client::lpop(const string& key, string& value)
 {
-	makecmd cmd("LPOP");
-	cmd << key;
-	return execute_and_get_string_reply(cmd, value);
+    MakeCmd cmd("LPOP");
+    cmd << key;
+    return execute_and_get_string_reply(cmd, value);
 }
 
-int client::lpush(const string& key, const string_array& values)
+int Client::lpush(const string& key, const string_array& values)
 {
-	makecmd cmd("LPUSH");
-	cmd << key << values;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("LPUSH");
+    cmd << key << values;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::lpushx(const string& key, const string& value)
+int Client::lpushx(const string& key, const string& value)
 {
-	makecmd cmd("LPUSHX");
-	cmd << key << value;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("LPUSHX");
+    cmd << key << value;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::lrange(const string& key, const int start, const int stop, string_array& values)
+int Client::lrange(const string& key, const int start, const int stop, string_array& values)
 {
-	makecmd cmd("LRANGE");
-	cmd << key << start << stop;
-	return execute_and_get_string_array_reply(cmd, values);
+    MakeCmd cmd("LRANGE");
+    cmd << key << start << stop;
+    return execute_and_get_string_array_reply(cmd, values);
 }
 
-int client::lrem(const string& key, const int count, const string& value)
+int Client::lrem(const string& key, const int count, const string& value)
 {
-	makecmd cmd("LREM");
-	cmd << key << count << value;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("LREM");
+    cmd << key << count << value;
+    return execute_and_get_int_reply(cmd);
 }
 
-bool client::lset(const string& key, const int count, const string& value)
+bool Client::lset(const string& key, const int count, const string& value)
 {
-	makecmd cmd("LSET");
-	cmd << key << count << value;
-	return execute_and_get_ok_reply(cmd);
+    MakeCmd cmd("LSET");
+    cmd << key << count << value;
+    return execute_and_get_ok_reply(cmd);
 }
 
-bool client::ltrim(const string& key, const int start, const int stop)
+bool Client::ltrim(const string& key, const int start, const int stop)
 {
-	makecmd cmd("LTRIM");
-	cmd << key << start << stop;
-	return execute_and_get_ok_reply(cmd);
+    MakeCmd cmd("LTRIM");
+    cmd << key << start << stop;
+    return execute_and_get_ok_reply(cmd);
 }
 
-int client::rpop(const string& key, string& value)
+int Client::rpop(const string& key, string& value)
 {
-	makecmd cmd("RPOP");
-	cmd << key;
-	return execute_and_get_string_reply(cmd, value);
+    MakeCmd cmd("RPOP");
+    cmd << key;
+    return execute_and_get_string_reply(cmd, value);
 }
 
-int client::rpoplpush(const string& source, const string& destination, string_array& values)
+int Client::rpoplpush(const string& source, const string& destination, string_array& values)
 {
-	makecmd cmd("RPOPLPUSH");
-	cmd << source << destination;
-	return execute_and_get_string_array_reply(cmd, values);
+    MakeCmd cmd("RPOPLPUSH");
+    cmd << source << destination;
+    return execute_and_get_string_array_reply(cmd, values);
 }
 
-int client::brpoplpush(const string& source, const string& destination, const int timeout, 
-	string_array& values)
+int Client::brpoplpush(const string& source, const string& destination, const int timeout, 
+    string_array& values)
 {
-	makecmd cmd("BRPOPLPUSH");
-	cmd << source << destination << timeout;
-	return execute_and_get_string_array_reply(cmd, values);
+    MakeCmd cmd("BRPOPLPUSH");
+    cmd << source << destination << timeout;
+    return execute_and_get_string_array_reply(cmd, values);
 }
 
-int client::rpush(const string& key, const string_array& values)
+int Client::rpush(const string& key, const string_array& values)
 {
-	makecmd cmd("RPUSH");
-	cmd << key << values;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("RPUSH");
+    cmd << key << values;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::rpushx(const string& key, const string& value)
+int Client::rpushx(const string& key, const string& value)
 {
-	makecmd cmd("RPUSHX");
-	cmd << key << value;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("RPUSHX");
+    cmd << key << value;
+    return execute_and_get_int_reply(cmd);
 }
 
-int client::publish(const string& channel, const string& message)
+int Client::publish(const string& channel, const string& message)
 {
-	makecmd cmd("PUBLISH");
-	cmd << channel << message;
-	return execute_and_get_int_reply(cmd);
+    MakeCmd cmd("PUBLISH");
+    cmd << channel << message;
+    return execute_and_get_int_reply(cmd);
 }
-
 
 }

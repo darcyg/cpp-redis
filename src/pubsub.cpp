@@ -20,7 +20,7 @@ int Subscriber::connect(const string& url)
     if (!Uri::parse(url, uri))
         return -1;
 
-    async_conn_ = new async_connection();
+    async_conn_ = new AsyncConnection();
     return async_conn_->connect(uri.host, uri.port, uri.db);
 }
 

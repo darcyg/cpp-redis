@@ -8,21 +8,21 @@ using namespace std;
 
 namespace redis {
 
-class async_service {
+class AsyncService {
 public:
-	async_service();
-	~async_service();
+    AsyncService();
+    ~AsyncService();
 
-	static async_service& instance();
+    static AsyncService& instance();
 
-	void start();
-	void stop();
+    void start();
+    void stop();
 
-	void attach(redisAsyncContext* ac);
+    void attach(redisAsyncContext* ac);
 
 private:
-	thread* event_thread_;
-	event_base* base_;
+    thread* event_thread_;
+    event_base* base_;
 };
 
 }

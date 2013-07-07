@@ -48,7 +48,7 @@ TEST_F(StringTest, incr)
 	rc_.set("testkey1", "foo");
 	try {
 		rc_.incrbyfloat("testkey1", 0.1);
-	} catch (const redis::value_exception& e) {
+	} catch (const redis::ValueException& e) {
 		EXPECT_TRUE(true);
 	} catch (const exception& ex) {
 		EXPECT_TRUE(false);

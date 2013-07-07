@@ -18,7 +18,7 @@ public:
 	}
 
 protected:
-	redis::client rc_;
+	redis::Client rc_;
 };
 
 #endif

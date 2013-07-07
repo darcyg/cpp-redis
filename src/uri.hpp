@@ -11,14 +11,14 @@ namespace redis {
  * redis://username:password@host:port/db
  */
 struct Uri {
-	Uri() : password(""), host(""), port(6379), db(0) {}
+    Uri() : password(""), host(""), port(6379), db(0) {}
 
     static bool parse(const string& url, Uri& uri);
-	
-	string password;
-	string host;
-	int    port;
-	int    db;
+    
+    string password;
+    string host;
+    int    port;
+    int    db;
 };
 
 }

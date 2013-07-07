@@ -3,41 +3,41 @@
 
 namespace redis {
 
-async_service::async_service()
+AsyncService::AsyncService()
 {
-	base_ = event_base_new();
-	event_thread_ = NULL;
+    base_ = event_base_new();
+    event_thread_ = NULL;
 }
 
-async_service::~async_service()
+AsyncService::~AsyncService()
 {
-	delete event_thread_;
+    delete event_thread_;
 }
 
-async_service& async_service::instance()
+AsyncService& AsyncService::instance()
 {
-	static async_service obj;
-	return obj;
+    static AsyncService obj;
+    return obj;
 }
 
-void async_service::attach(redisAsyncContext* ac)
+void AsyncService::attach(redisAsyncContext* ac)
 {
-	redisLibeventAttach(ac, base_);
+    redisLibeventAttach(ac, base_);
 }
 
-void async_service::start()
+void AsyncService::start()
 {
-	event_thread_ = new thread(event_base_loop, base_, EVLOOP_NO_EXIT_ON_EMPTY);
+    event_thread_ = new thread(event_base_loop, base_, EVLOOP_NO_EXIT_ON_EMPTY);
 }
 
-void async_service::stop()
+void AsyncService::stop()
 {
-	struct timeval tv;
-	tv.tv_sec = 1;
-	tv.tv_usec  = 0;
-	event_base_loopexit(base_, &tv);
+    struct timeval tv;
+    tv.tv_sec = 1;
+    tv.tv_usec  = 0;
+    event_base_loopexit(base_, &tv);
 
-	event_thread_->join();
+    event_thread_->join();
 }
 
 }

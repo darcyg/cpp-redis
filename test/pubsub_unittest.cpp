@@ -19,7 +19,7 @@ class TestListener : public redis::Listener {
 
 TEST_F(PubSubTest, pubsub)
 {
-    redis::async_service::instance().start();
+    redis::AsyncService::instance().start();
 
     redis::Subscriber sub;
     EXPECT_EQ(0, sub.connect("redis://localhost::6379"));
@@ -31,7 +31,7 @@ TEST_F(PubSubTest, pubsub)
     for (int i = 0; i < 10; i++)
         rc_.publish("foo", "test");
 
-    redis::async_service::instance().stop();
+    redis::AsyncService::instance().stop();
     
     EXPECT_TRUE(true);
 }

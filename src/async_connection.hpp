@@ -10,31 +10,31 @@ using namespace std;
 
 namespace redis {
 
-class async_connection {
-	friend inline async_connection* get_async_connection(const redisAsyncContext* ac);
+class AsyncConnection {
+    friend inline AsyncConnection* get_async_connection(const redisAsyncContext* ac);
 public:
-	async_connection();
-	~async_connection();
+    AsyncConnection();
+    ~AsyncConnection();
 
-	int connect(const string& host, const int port = 6379, const int db = 0);
-	void disconnect();
+    int connect(const string& host, const int port = 6379, const int db = 0);
+    void disconnect();
 
-	void on_connect(int status);
-	void on_disconnect(int status);
+    void on_connect(int status);
+    void on_disconnect(int status);
 
-	int send_command(const rediscmd& cmd, redisCallbackFn* fn, void* privatedata);
+    int send_command(const RedisCmd& cmd, redisCallbackFn* fn, void* privatedata);
 
 private:
-	redisAsyncContext* async_context_;
-	string host_;
-	int port_;
-	int db_; 
+    redisAsyncContext* async_context_;
+    string host_;
+    int port_;
+    int db_; 
 };
 
-inline async_connection* get_async_connection(const redisAsyncContext* ac)
+inline AsyncConnection* get_async_connection(const redisAsyncContext* ac)
 {
-	async_connection* conn = NULL;
-	return (async_connection*)((char*)(&ac) - (long)(&conn->async_context_));
+    AsyncConnection* conn = NULL;
+    return (AsyncConnection*)((char*)(&ac) - (long)(&conn->async_context_));
 }
 
 }
