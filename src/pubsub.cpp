@@ -1,3 +1,4 @@
+#include <cstring>
 #include <iostream>
 #include "pubsub.hpp"
 #include "uri.hpp"
@@ -6,30 +7,12 @@ using namespace std;
 
 namespace redis {
 
-void publish_callback(redisAsyncContext *ac, void* r, void* privatedata)
-{
-    redisReply* reply = (redisReply*)r;
-    if (reply)
-    {
-         cout << __func__ << '\t' << reply->type << endl;
-    }
-}
-       
-int Publisher::connect(const string& url)
-{
-    Uri uri;
-    if (!Uri::parse(url, uri))
-        return -1;
-
-    return async_conn_->connect(uri.host, uri.port, uri.db);
-}
-
-int Publisher::publish(const string& channel, const string& message)
-{
-    makecmd cmd("PUBLISH");
-    cmd << channel << message;
-    async_conn_->send_command(cmd, publish_callback, this);
-}
+#define SUBSCRIBE    "subscribe"
+#define UNSUBSCRIBE  "unsubscribe"
+#define PSUBSCRIBE   "psubscribe"
+#define PUNSUBSCRIBE "punsubscribe"
+#define MESSAGE      "message"
+#define PMESSAGE     "pmessage"
 
 int Subscriber::connect(const string& url)
 {
@@ -40,39 +23,99 @@ int Subscriber::connect(const string& url)
     return async_conn_->connect(uri.host, uri.port, uri.db);
 }
 
-void Subscriber::subscribe_callback(redisAsyncContext *ac, void* r, void* privatedata)
+void Subscriber::set_listener(Listener* listener)
 {
-    redisReply* reply = (redisReply*) r;
-    Listener* listener = (Listener*) privatedata;
-
-    if (reply == NULL)
-        return;
-
-    if (reply->type == REDIS_REPLY_ARRAY)
-    {
-        string command = string(reply->element[0]->str, reply->element[0]->len);
-        string channel = string(reply->element[1]->str, reply->element[1]->len);
-        string message = string(reply->element[2]->str, reply->element[2]->len);
-
-        listener->on_message(channel, message);
-    }
+    listener_ = listener;
 }
 
-void Subscriber::psubscribe_callback(redisAsyncContext *ac, void* r, void* privatedata)
+void Subscriber::on_subscribe(const string& channel, const int subscribed_channels)
+{
+    cout << channel << '\t' << subscribed_channels << endl;
+}
+
+void Subscriber::on_unsubscribe(const string& channel, const int subscribed_channels)
+{
+    cout << channel << '\t' << subscribed_channels << endl;
+}
+
+void Subscriber::on_psubscribe(const string& pattern, const int subscribed_patterns)
+{
+    cout << pattern << '\t' << subscribed_patterns << endl;
+}
+
+void Subscriber::on_punsubscribe(const string& pattern, const int subscribed_patterns)
+{
+    cout << pattern << '\t' << subscribed_patterns << endl;
+}
+
+void Subscriber::on_message(const string& channel, const string& message)
+{
+    listener_->on_message(channel, message);
+}
+
+void Subscriber::on_pmessage(const string& pattern, const string& channel, const string& message)
+{
+    listener_->on_pmessage(pattern, channel, message);
+}
+
+void Subscriber::sub_callback(redisAsyncContext *ac, void* r, void* privatedata)
 {
     redisReply* reply = (redisReply*) r;
-    Listener* listener = (Listener*) privatedata;
+    Subscriber* sub = (Subscriber*) privatedata;
 
     if (reply == NULL)
         return;
 
-    if (reply->type == REDIS_REPLY_ARRAY)
-    {
-        string command = string(reply->element[0]->str, reply->element[0]->len);
-        string pattern = string(reply->element[1]->str, reply->element[1]->len);
-        string message = string(reply->element[2]->str, reply->element[2]->len);
+    cout << reply->elements << endl;
 
-        listener->on_pmessage(pattern, message);
+    for (int index = 0; index < reply->elements; ++index)
+    {
+        if (strncmp(SUBSCRIBE, reply->element[index]->str, reply->element[index]->len) == 0)
+        {
+            ++index;
+            string channel = string(reply->element[index]->str, reply->element[index]->len);
+            ++index;
+            sub->on_subscribe(channel, reply->element[index]->integer);
+        }
+        else if (strncmp(UNSUBSCRIBE, reply->element[index]->str, reply->element[index]->len) == 0)
+        {
+            ++index;
+            string pattern = string(reply->element[index]->str, reply->element[index]->len);
+            ++index;
+            sub->on_unsubscribe(pattern, reply->element[index]->integer);
+        }
+        else if (strncmp(PSUBSCRIBE, reply->element[index]->str, reply->element[index]->len) == 0)
+        {
+            ++index;
+            string pattern = string(reply->element[index]->str, reply->element[index]->len);
+            ++index;
+            sub->on_psubscribe(pattern, reply->element[index]->integer);
+        }
+        else if (strncmp(PUNSUBSCRIBE, reply->element[index]->str, reply->element[index]->len) == 0)
+        {
+            ++index;
+            string pattern = string(reply->element[index]->str, reply->element[index]->len);
+            ++index;
+            sub->on_punsubscribe(pattern, reply->element[index]->integer);
+        }
+        else if (strncmp(MESSAGE, reply->element[index]->str, reply->element[index]->len) == 0)
+        {
+            ++index;
+            string channel = string(reply->element[index]->str, reply->element[index]->len);
+            ++index;
+            string message = string(reply->element[index]->str, reply->element[index]->len);
+            sub->on_message(channel, message);
+        }
+        else if (strncmp(PMESSAGE, reply->element[index]->str, reply->element[index]->len) == 0)
+        {
+            ++index;
+            string pattern = string(reply->element[index]->str, reply->element[index]->len);
+            ++index;
+            string channel = string(reply->element[index]->str, reply->element[index]->len);
+            ++index;
+            string message = string(reply->element[index]->str, reply->element[index]->len);
+            sub->on_pmessage(pattern, channel, message);
+        }
     }
 }
 

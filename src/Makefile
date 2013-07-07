@@ -13,8 +13,8 @@ CCFLAGS = $(CXXFLAGS) $(ALLINCLUDES)
 
 OBJS = \
 	reply.o \
-	redis_connection.o\
-	redis_connection_pool.o \
+	connection.o\
+	connection_pool.o \
 	redis_client.o \
 	uri.o \
 	async_connection.o \

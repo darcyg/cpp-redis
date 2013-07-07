@@ -1,5 +1,5 @@
-#ifndef REDIS_CONNECTION_HPP
-#define REDIS_CONNECTION_HPP
+#ifndef CONNECTION_HPP
+#define CONNECTION_HPP
 
 #include <hiredis/hiredis.h>
 #include "command.hpp"

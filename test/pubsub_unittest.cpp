@@ -11,9 +11,9 @@ class TestListener : public redis::Listener {
         cout << channel << '\t' << message << endl;
     }
 
-    virtual void on_pmessage(const string& pattern, const string& message)
+    virtual void on_pmessage(const string& pattern, const string& channel, const string& message)
     {
-        cout << pattern << '\t' << message << endl;
+        cout << pattern << '\t' << channel << '\t' << message << endl;
     }
 };
 
@@ -21,22 +21,21 @@ TEST_F(PubSubTest, pubsub)
 {
     redis::async_service::instance().start();
 
-    redis::Publisher pub;
-    EXPECT_EQ(0, pub.connect("redis://localhost:6379"));
-
-    TestListener listener;
     redis::Subscriber sub;
     EXPECT_EQ(0, sub.connect("redis://localhost::6379"));
-    sub.set_listener(&listener);
-    // sub.subscribe("testtopic"); 
+    sub.subscribe("foo", "bar"); 
+    sub.psubscribe("test*", "zoo*");
+    
+    sub.set_listener(new TestListener());
+/*
+    sub.unsubscribe("foo");
+    sub.unsubscribe("bar");
 
-    for (int i = 0; i < 100; i++)
-    {
-        pub.publish("testtopic", "testmessage");
-        sleep(1);
-    }
-
+    sub.punsubscribe("test*", "zoo*");
+*/
+    sleep(600);
     redis::async_service::instance().stop();
+    
 
     EXPECT_TRUE(true);
 }

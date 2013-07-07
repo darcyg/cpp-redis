@@ -3,7 +3,7 @@
 
 #include "types.hpp"
 #include "command.hpp"
-#include "redis_connection_pool.hpp"
+#include "connection_pool.hpp"
 
 using namespace std;
 

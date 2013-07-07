@@ -1,9 +1,9 @@
-#ifndef REDIS_CONNECYION_POOL_HPP
-#define REDIS_CONNECYION_POOL_HPP
+#ifndef CONNECYION_POOL_HPP
+#define CONNECYION_POOL_HPP
 
 #include <queue>
 #include <mutex>
-#include "redis_connection.hpp"
+#include "connection.hpp"
 using namespace std;
 
 namespace redis {

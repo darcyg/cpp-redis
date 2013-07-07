@@ -1,4 +1,4 @@
-#include "redis_connection_pool.hpp"
+#include "connection_pool.hpp"
 
 namespace redis {
 
