@@ -11,6 +11,7 @@ using namespace std;
 namespace redis {
 
 const int CONNECT_TIMEOUT_MILLISECONDS = 2000;
+const string SENTINEL_PATTERN = "__sentinel__:*";
 
 class SentinelListener : public Listener {
 public:
@@ -83,7 +84,7 @@ void SentinelClient::subscribe_notification(const string& url)
 {
     sentinel_subscriber_.set_listener(new SentinelListener());
     sentinel_subscriber_.connect(url);
-    sentinel_subscriber_.psubscribe("*");
+    sentinel_subscriber_.psubscribe(SENTINEL_PATTERN);
 }
 
 }
