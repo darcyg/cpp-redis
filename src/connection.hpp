@@ -11,23 +11,19 @@ namespace redis {
 class Connection {
 public:
     Connection(const string& host, const int port, const int db);
+    Connection(const string& url);
+
     virtual ~Connection();
 
-    // hope this function will be never used.
-    redisContext* get_handle() const;
-
-    bool connect();
+    bool connect(const int timeout = 0);
     void disconnect();
+
     bool ping();
+    bool select(const int db);
+    bool auth(const string& password);
+    bool quit();
 
     redisReply* send_command(const RedisCmd& cmd);
-
-private:
-    bool auth(const string& password);
-
-    bool select(const int db);
-
-    bool quit();
 
 private:
     redisContext* context_;

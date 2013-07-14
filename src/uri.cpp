@@ -9,7 +9,7 @@ namespace redis {
 /*
  * <scheme>://<netloc>/<path>;<params>?<query>#<fragment>
  */
-bool Uri::parse(const string& url, Uri& uri)
+bool URI::parse(const string& url, URI& uri)
 {
     // check redis scheme
     size_t pos = url.find("://");

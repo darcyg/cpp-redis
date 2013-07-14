@@ -19,7 +19,8 @@ OBJS = \
 	uri.o \
 	async_connection.o \
 	async_service.o \
-	pubsub.o
+	pubsub.o \
+	sentinel.o
 
 all : build 
 	@echo

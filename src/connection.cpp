@@ -2,13 +2,25 @@
 #include "reply.hpp"
 #include "connection.hpp"
 #include "redis_exception.hpp"
+#include "uri.hpp"
 
 namespace redis {
 
 Connection::Connection(const string& host, const int port, const int db)
-    : host_(host), port_(port), db_(db)
+    : host_(host), port_(port), db_(db), context_(NULL)
 {
-    context_ = NULL;
+}
+
+Connection::Connection(const string& url)
+    : context_(NULL)
+{
+    URI uri;
+    if (URI::parse(url, uri))
+    {
+        host_ = uri.host;
+        port_ = uri.port;
+        db_ = uri.db;
+    }
 }
 
 Connection::~Connection()
@@ -16,15 +28,8 @@ Connection::~Connection()
     disconnect();
 }
 
-redisContext* Connection::get_handle() const
+bool Connection::connect(const int timeout)
 {
-    return context_;
-}
-
-bool Connection::connect()
-{
-    disconnect();
-    
     context_ = redisConnect(host_.c_str(), port_);
     if (context_->err)
     {
@@ -33,7 +38,7 @@ bool Connection::connect()
         return false;
     }
 
-    return select(db_);
+    return true;
 }
 
 void Connection::disconnect()
@@ -60,15 +65,6 @@ bool Connection::ping()
     return ret;
 }
 
-redisReply* Connection::send_command(const RedisCmd& cmd)
-{
-    redisReply* reply = (redisReply*)redisCommandArgv(context_,
-        cmd.argc, (const char**)cmd.argv, cmd.argvlen);
-    if (reply == NULL)
-        throw CommandException(context_->errstr);
-    return reply;
-}
-
 bool Connection::auth(const string& password)
 {
     return true;
@@ -86,6 +82,15 @@ bool Connection::select(const int db)
 bool Connection::quit()
 {
     return true;
+}
+
+redisReply* Connection::send_command(const RedisCmd& cmd)
+{
+    redisReply* reply = (redisReply*)redisCommandArgv(context_,
+        cmd.argc, (const char**)cmd.argv, cmd.argvlen);
+    if (reply == NULL)
+        throw CommandException(context_->errstr);
+    return reply;
 }
 
 }

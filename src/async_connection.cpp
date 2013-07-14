@@ -1,4 +1,5 @@
 #include <iostream>
+#include "uri.hpp"
 #include "async_connection.hpp"
 #include "async_service.hpp"
 
@@ -44,6 +45,18 @@ int AsyncConnection::connect(const string& host, const int port, const int db)
     return 0;
 }
 
+int AsyncConnection::connect(const string& url)
+{
+    URI uri;
+    if (!URI::parse(url, uri)) 
+    {
+        // TODO log error
+        return -1;
+    }
+
+    return connect(uri.host, uri.port);
+}
+
 void AsyncConnection::disconnect()
 {
     redisAsyncDisconnect(async_context_);
@@ -67,7 +80,7 @@ void AsyncConnection::on_connect(int status)
 
 void AsyncConnection::on_disconnect(int status)
 {
-    if (status != REDIS_OK)
+    if (status != REDIS_OK) 
     {
         cout << "Error: " << async_context_->errstr << endl;
         return;

@@ -10,10 +10,10 @@ namespace redis {
  * We only support the following redis:// scheme
  * redis://username:password@host:port/db
  */
-struct Uri {
-    Uri() : password(""), host(""), port(6379), db(0) {}
+struct URI {
+    URI() : password(""), host(""), port(6379), db(0) {}
 
-    static bool parse(const string& url, Uri& uri);
+    static bool parse(const string& url, URI& uri);
     
     string password;
     string host;

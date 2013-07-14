@@ -27,8 +27,8 @@ int Client::connect(const string& host, const int port, const int db,
 
 int Client::connect_with_url(const string& url)
 {
-    Uri uri;
-    if (Uri::parse(url, uri) == false)
+    URI uri;
+    if (URI::parse(url, uri) == false)
         return -1;
 
     return this->connect(uri.host, uri.port, uri.db);

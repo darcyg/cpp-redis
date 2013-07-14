@@ -16,8 +16,8 @@ namespace redis {
 
 int Subscriber::connect(const string& url)
 {
-    Uri uri;
-    if (!Uri::parse(url, uri))
+    URI uri;
+    if (!URI::parse(url, uri))
         return -1;
 
     async_conn_ = new AsyncConnection();

@@ -25,7 +25,10 @@ int ConnectionPool::initialize()
     {
         Connection* conn = new Connection(host_, port_, db_);
         if (conn->connect())
+        {
+            conn->select(db_);
             connq_.push(conn);
+        }
         else
         {
             ret = -1;

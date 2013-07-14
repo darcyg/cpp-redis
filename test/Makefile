@@ -67,7 +67,8 @@ TESTCASES = \
 	keys_unittest.o \
 	url_unittest.o \
 	async_unittest.o \
-	pubsub_unittest.o
+	pubsub_unittest.o \
+	sentinel_unittest.o 
 
 %.o:%.cpp
 	$(CXX)  $(CPPFLAGS) $(CXXFLAGS) -c $<
