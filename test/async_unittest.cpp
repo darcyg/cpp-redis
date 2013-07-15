@@ -16,14 +16,12 @@ void ping_callback(redisAsyncContext *ac, void* reply, void* privatedata)
 
 TEST(AsyncTest, connect)
 {
-    /*
-	redis::async_service::instance().start();
-	redis::async_connection conn;
-	EXPECT_EQ(0, conn.connect("localhost"));
+    redis::AsyncService::instance().start();
+    redis::AsyncConnection conn;
+    EXPECT_EQ(0, conn.connect("redis://localhost:6379"));
 
-    redis::makecmd cmd("PING");
+    redis::MakeCmd cmd("PING");
     conn.send_command(cmd, ping_callback, NULL);
 
-	redis::async_service::instance().stop();
-    */
+    redis::AsyncService::instance().stop();
 }

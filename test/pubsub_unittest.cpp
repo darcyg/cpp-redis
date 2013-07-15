@@ -22,7 +22,7 @@ TEST_F(PubSubTest, pubsub)
     redis::AsyncService::instance().start();
 
     redis::Subscriber sub;
-    EXPECT_EQ(0, sub.connect("redis://localhost::6379"));
+    EXPECT_EQ(0, sub.connect("redis://localhost:6379"));
     sub.subscribe("foo", "bar"); 
     sub.psubscribe("test*", "zoo*");
 

@@ -30,7 +30,7 @@ AsyncConnection::~AsyncConnection()
 
 int AsyncConnection::connect(const string& host, const int port, const int db)
 {
-    async_context_ = redisAsyncConnect("127.0.0.1", 6379);
+    async_context_ = redisAsyncConnect(host.c_str(), port);
     if (async_context_->err)
     {
         cout << "error: " << async_context_->errstr << endl;

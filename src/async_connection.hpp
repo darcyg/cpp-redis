@@ -16,7 +16,7 @@ public:
     AsyncConnection();
     ~AsyncConnection();
 
-    int connect(const string& host, const int port = 6379, const int db = 0);
+    int connect(const string& host, const int port, const int db = 0);
     int connect(const string& url);
     void disconnect();
 

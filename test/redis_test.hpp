@@ -6,19 +6,18 @@
 
 class RedisTest : public testing::Test {
 public:
-	virtual void SetUp()
-	{
-		rc_.connect("127.0.0.1", 6379);
+    virtual void SetUp()
+    {
+        rc_.connect("127.0.0.1", 6379);
+    }
 
-	}
-
-	virtual void TearDown()
-	{
-		rc_.close();
-	}
+    virtual void TearDown()
+    {
+        rc_.close();
+    }
 
 protected:
-	redis::Client rc_;
+    redis::Client rc_;
 };
 
 #endif
