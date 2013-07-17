@@ -11,7 +11,6 @@ using namespace std;
 namespace redis {
 
 class AsyncConnection {
-    friend inline AsyncConnection* get_async_connection(const redisAsyncContext* ac);
 public:
     AsyncConnection();
     ~AsyncConnection();
@@ -31,12 +30,6 @@ private:
     int port_;
     int db_; 
 };
-
-inline AsyncConnection* get_async_connection(const redisAsyncContext* ac)
-{
-    AsyncConnection* conn = NULL;
-    return (AsyncConnection*)((char*)(&ac) - (long)(&conn->async_context_));
-}
 
 }
 

@@ -9,13 +9,13 @@ namespace redis {
 
 static void connect_callback(const redisAsyncContext *ac, int status)
 {
-    AsyncConnection* conn = get_async_connection(ac);
+    AsyncConnection* conn = (AsyncConnection*)ac->data;
     conn->on_connect(status);
 }
 
 static void disconnect_callback(const redisAsyncContext *ac, int status)
 {
-    AsyncConnection* conn = get_async_connection(ac);
+    AsyncConnection* conn = (AsyncConnection*)ac->data;
     conn->on_disconnect(status);
 }
 
@@ -31,6 +31,7 @@ AsyncConnection::~AsyncConnection()
 int AsyncConnection::connect(const string& host, const int port, const int db)
 {
     async_context_ = redisAsyncConnect(host.c_str(), port);
+    async_context_->data = this;
     if (async_context_->err)
     {
         cout << "error: " << async_context_->errstr << endl;
