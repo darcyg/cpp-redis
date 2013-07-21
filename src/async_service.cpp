@@ -3,6 +3,10 @@
 
 namespace redis {
 
+static void donothing_cb(evutil_socket_t fd, short event, void *arg)
+{
+}
+
 AsyncService::AsyncService()
 {
     base_ = event_base_new();
@@ -27,7 +31,12 @@ void AsyncService::attach(redisAsyncContext* ac)
 
 void AsyncService::start()
 {
-    event_thread_ = new thread(event_base_loop, base_, EVLOOP_NO_EXIT_ON_EMPTY);
+    struct event* timeout = event_new(base_, -1, EV_PERSIST, donothing_cb, NULL);
+    struct timeval tv;
+    evutil_timerclear(&tv);
+    tv.tv_sec = 3600;
+    evtimer_add(timeout, &tv);
+    event_thread_ = new thread(event_base_dispatch, base_);
 }
 
 void AsyncService::stop()

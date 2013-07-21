@@ -17,14 +17,8 @@ namespace redis {
 
 class SentinelListener : public Listener {
 public:
-    virtual void on_message(const string& channel, const string& message);
     virtual void on_pmessage(const string& pattern, const string& channel, const string& message);
 };
-
-void SentinelListener::on_message(const string& channel, const string& message)
-{
-    cout << channel << ' ' << message << endl;
-}
 
 void SentinelListener::on_pmessage(const string& pattern, const string& channel, const string& message)
 {
@@ -44,7 +38,7 @@ bool Sentinel::start_client_connect()
     if (discover_master(addr, url) == false)
         return false;
 
-    if (client_->connect(addr.first, addr.second, db_))
+    if (client_->connect(addr.first, addr.second, db_) == 0)
     {
         master_ip_ = addr.first;
         master_port_ = addr.second;
@@ -90,7 +84,7 @@ bool Sentinel::get_master_address(pair<string, int>& addr)
     try {
         int ret = recv_string_array_reply(reply, address);
         const string& master_ip = address[0];
-        int master_port = atoi(address[0].c_str());
+        int master_port = atoi(address[1].c_str());
         cout << master_ip << ' ' << master_port << endl;
         addr = make_pair(master_ip, master_port);
     } catch (const RedisException& e) {
@@ -139,7 +133,11 @@ void Sentinel::check_master()
     }
 
     if (url != sentinel_url_)
+    {
+        cout << "re-subscribe sentinel pattern" << endl;
         subscribe_sentinel_notification(url);
+    }
+        
 }
 
 }
