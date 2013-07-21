@@ -1,18 +1,18 @@
 #include <gtest/gtest.h>
+#include "redis_client.hpp"
 #include "async_service.hpp"
-#include "sentinel.hpp"
 
 TEST(SentinelTest, testconnect)
 {
+	redis::AsyncService::instance().start();
+
 	vector<string> urls = {"redis://localhost:26379", "redis://localhost:26380",
 		"redis://localhost:26381", "redis://localhost:26382"};
 
-	redis::AsyncService::instance().start();
+    redis::Client client;
+    client.connect(urls, "mymaster");
 
-	redis::SentinelClient client(urls, "mymaster");
-	EXPECT_TRUE(client.connect());
+    sleep(100);
 
-	sleep(600);
-
-	redis::AsyncService::instance().stop();
+    redis::AsyncService::instance().stop();
 }

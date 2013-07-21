@@ -6,21 +6,9 @@
 
 namespace redis {
 
-Connection::Connection(const string& host, const int port, const int db)
-    : host_(host), port_(port), db_(db), context_(NULL)
-{
-}
-
-Connection::Connection(const string& url)
+Connection::Connection()
     : context_(NULL)
 {
-    URI uri;
-    if (URI::parse(url, uri))
-    {
-        host_ = uri.host;
-        port_ = uri.port;
-        db_ = uri.db;
-    }
 }
 
 Connection::~Connection()
@@ -28,9 +16,9 @@ Connection::~Connection()
     disconnect();
 }
 
-bool Connection::connect(const int timeout)
+bool Connection::connect(const string& host, const int port)
 {
-    context_ = redisConnect(host_.c_str(), port_);
+    context_ = redisConnect(host.c_str(), port);
     if (context_->err)
     {
         redisFree(context_);
@@ -41,10 +29,16 @@ bool Connection::connect(const int timeout)
     return true;
 }
 
+bool Connection::connect(const string& url)
+{
+    URI uri;
+    if (!URI::parse(url, uri))
+        return false;
+    return connect(uri.host, uri.port);
+}
+
 void Connection::disconnect()
 {
-    quit();
-
     if (context_)
     {
         redisFree(context_);

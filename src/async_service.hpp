@@ -20,6 +20,11 @@ public:
 
     void attach(redisAsyncContext* ac);
 
+    event_base* get_event_base()
+    {
+    	return base_;
+    }
+
 private:
     thread* event_thread_;
     event_base* base_;

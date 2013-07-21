@@ -10,12 +10,11 @@ namespace redis {
 
 class Connection {
 public:
-    Connection(const string& host, const int port, const int db);
-    Connection(const string& url);
+    Connection();
+    ~Connection();
 
-    virtual ~Connection();
-
-    bool connect(const int timeout = 0);
+    bool connect(const string& host, const int port);
+    bool connect(const string& url);
     void disconnect();
 
     bool ping();
@@ -27,9 +26,6 @@ public:
 
 private:
     redisContext* context_;
-    string host_;
-    int port_;
-    int db_;
 };
 
 }

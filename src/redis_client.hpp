@@ -4,6 +4,7 @@
 #include "types.hpp"
 #include "command.hpp"
 #include "connection_pool.hpp"
+#include "sentinel.hpp"
 
 using namespace std;
 
@@ -14,9 +15,9 @@ public:
     Client();
     ~Client();
 
-    int connect(const string& host, const int port = 6379, const int db = 0,
-            const int pool_size = 5, const int max_pool_size = 10);
-    int connect_with_url(const string& url);
+    int connect(const string& host, const int port, const int db = 0);
+    int connect(const string& url);
+    int connect(const vector<string>& sentinel_urls, const string& master_name, const int db = 0);
 
     void close();
 
@@ -214,7 +215,9 @@ private:
     int execute_and_get_string_hash_map_reply(const RedisCmd& cmd, const string_array& fileds, 
         string_hash_map& h);
 
+private:
     ConnectionPool* pool_;
+    Sentinel* sentinel_;
 };
 
 }

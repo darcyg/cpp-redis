@@ -1,16 +1,19 @@
 #include <cstring>
 #include <iostream>
+#include <event2/event.h>
+#include <event2/event_struct.h>
+#include <event2/util.h>
 #include "types.hpp"
 #include "reply.hpp"
 #include "command.hpp"
 #include "sentinel.hpp"
 #include "redis_exception.hpp"
+#include "redis_client.hpp"
+#include "async_service.hpp"
 
 using namespace std;
 
 namespace redis {
-
-const int CONNECT_TIMEOUT_MILLISECONDS = 2000;
 
 class SentinelListener : public Listener {
 public:
@@ -28,50 +31,68 @@ void SentinelListener::on_pmessage(const string& pattern, const string& channel,
     cout << pattern << ' ' << channel << ' ' << message << endl;
 }
 
-SentinelClient::SentinelClient(const vector<string>& urls, const string& master_name)
-    : urls_(urls), master_name_(master_name), master_ip_(""), master_port_(0)
+Sentinel::Sentinel(Client* client, const vector<string>& urls, const string& master_name, const int db)
+    : client_(client), urls_(urls), master_name_(master_name), master_ip_(""), master_port_(0), db_(db)
 {
 }
 
-bool SentinelClient::connect()
+bool Sentinel::start_client_connect()
 {
-    bool ret = false;
+    pair<string, int> addr;
+    string url;
+
+    if (discover_master(addr, url) == false)
+        return false;
+
+    if (client_->connect(addr.first, addr.second, db_))
+    {
+        master_ip_ = addr.first;
+        master_port_ = addr.second;
+        sentinel_url_ = url;
+
+        subscribe_sentinel_notification(url);
+        start_monitor_timer();
+        return true;
+    }
+
+    return false;
+}
+
+bool Sentinel::discover_master(pair<string, int>& addr, string& url)
+{
+    bool succ = false;
     for (vector<string>::iterator it = urls_.begin(); it != urls_.end(); ++it)
     {
-        const string& url = *it;
-        shared_ptr<Connection> conn(new Connection(url));
-        if (conn->connect(CONNECT_TIMEOUT_MILLISECONDS))
+        url = *it;
+        if (conn_.connect(url))
         {
-            if (discover_master(conn))
+            if (get_master_address(addr))
             {
-                ret = true;
-
+                succ = true;
                 // give priority to the replying Sentinel
                 urls_.erase(it);
                 urls_.insert(urls_.begin(), url);
-
-                // subscribe sentinel notification
-                subscribe_notification(url);
                 break;
             }
         }
     }
 
-    return ret;
+    return succ;
 }
 
-bool SentinelClient::discover_master(shared_ptr<Connection> conn)
+bool Sentinel::get_master_address(pair<string, int>& addr)
 {
     MakeCmd cmd("SENTINEL");
     cmd << "get-master-addr-by-name" << master_name_;
-    redisReply* reply(conn->send_command(cmd));
+    redisReply* reply(conn_.send_command(cmd));
 
     string_array address;
     try {
         int ret = recv_string_array_reply(reply, address);
-        master_ip_ = address[0];
-        master_port_ = atoi(address[0].c_str());
-        cout << master_ip_ << ' ' << master_port_ << endl;
+        const string& master_ip = address[0];
+        int master_port = atoi(address[0].c_str());
+        cout << master_ip << ' ' << master_port << endl;
+        addr = make_pair(master_ip, master_port);
     } catch (const RedisException& e) {
         return false;
     }
@@ -79,11 +100,46 @@ bool SentinelClient::discover_master(shared_ptr<Connection> conn)
     return true;
 }
 
-void SentinelClient::subscribe_notification(const string& url)
+void Sentinel::subscribe_sentinel_notification(const string& url)
 {
     sentinel_subscriber_.set_listener(new SentinelListener());
     sentinel_subscriber_.connect(url);
     sentinel_subscriber_.psubscribe("*");
+}
+
+static void timeout_cb(evutil_socket_t fd, short event, void *arg)
+{
+    Sentinel* sentinel = (Sentinel*) arg;
+
+    cout << "monitor master" << endl;
+    sentinel->check_master();
+}
+
+void Sentinel::start_monitor_timer()
+{
+    event_base* base = AsyncService::instance().get_event_base();
+    struct event* timeout = event_new(base, -1, EV_PERSIST, timeout_cb, this);
+    struct timeval tv;
+    evutil_timerclear(&tv);
+    tv.tv_sec = 1;
+    evtimer_add(timeout, &tv);
+}
+
+void Sentinel::check_master()
+{
+    pair<string, int> addr;
+    string url;
+    if (discover_master(addr, url) == false)
+        cout << "failed to discover master" << endl;
+
+    if (addr.first != master_ip_ || addr.second != master_port_)
+    {
+        cout << "master change, do reconnect" << endl;
+        client_->connect(addr.first, addr.second, db_);
+    }
+
+    if (url != sentinel_url_)
+        subscribe_sentinel_notification(url);
 }
 
 }

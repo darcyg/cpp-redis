@@ -10,34 +10,41 @@ array<string, BitOp_Num> bitop_strs = {"AND", "OR", "XOR", "NOT"};
 array<string, InsertDirection_Num> insert_direction_str = {"BEFORE", "AFTER"};
 
 Client::Client()
+    : pool_(NULL), sentinel_(NULL)
 {
 }
 
 Client::~Client()
 {
-    delete pool_;
+    if (pool_) delete pool_;
+    if (sentinel_) delete sentinel_;
 }
 
-int Client::connect(const string& host, const int port, const int db,
-        const int pool_size, const int max_pool_size)
+int Client::connect(const string& host, const int port, const int db)
 {
-    pool_ = new ConnectionPool(host, port, db, pool_size, max_pool_size);
+    if (pool_)
+        delete pool_;
+
+    pool_ = new ConnectionPool(host, port, db);
     return pool_->initialize();
 }
 
-int Client::connect_with_url(const string& url)
+int Client::connect(const string& url)
 {
     URI uri;
     if (URI::parse(url, uri) == false)
         return -1;
-
     return this->connect(uri.host, uri.port, uri.db);
+}
+
+int Client::connect(const vector<string>& sentinel_urls, const string& master_name, const int db)
+{
+    sentinel_ = new Sentinel(this, sentinel_urls, master_name, db);
+    return sentinel_->start_client_connect();
 }
 
 void Client::close()
 {
-    delete pool_;
-    pool_ = NULL;
 }
 
 redisReply* Client::execute(const RedisCmd& cmd)

@@ -23,8 +23,8 @@ int ConnectionPool::initialize()
     int ret = 0;
     for (int i = 0; i < size_; i++)
     {
-        Connection* conn = new Connection(host_, port_, db_);
-        if (conn->connect())
+        Connection* conn = new Connection();
+        if (conn->connect(host_, port_))
         {
             conn->select(db_);
             connq_.push(conn);
@@ -46,9 +46,10 @@ Connection* ConnectionPool::acquire()
     {
         if (size_ < max_size_)
         {
-            Connection* conn = new Connection(host_, port_, db_);
-            if (conn->connect())
+            Connection* conn = new Connection();
+            if (conn->connect(host_, port_))
             {
+                conn->select(db_);
                 connq_.push(conn);
                 ++size_;
             }
@@ -61,13 +62,6 @@ Connection* ConnectionPool::acquire()
 
     Connection* conn = connq_.front();
     connq_.pop();
-    if (conn->ping() == false)
-    {
-        --size_;
-        delete conn;
-        return NULL;
-    }
-
     return conn;
 }
 
