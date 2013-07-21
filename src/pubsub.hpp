@@ -8,8 +8,8 @@ namespace redis {
 
 class Listener {
 public:
-    virtual void on_message(const string& channel, const string& message) {}
-    virtual void on_pmessage(const string& pattern, const string& channel, const string& message) {}
+    virtual void on_message(const string& channel, const string& message) = 0;
+    virtual void on_pmessage(const string& pattern, const string& channel, const string& message) = 0;
 };
 
 class Subscriber {

@@ -17,8 +17,14 @@ namespace redis {
 
 class SentinelListener : public Listener {
 public:
+    virtual void on_message(const string& channel, const string& message);
     virtual void on_pmessage(const string& pattern, const string& channel, const string& message);
 };
+
+void SentinelListener::on_message(const string& channel, const string& message)
+{
+    cout << channel << ' ' << message << endl;
+}
 
 void SentinelListener::on_pmessage(const string& pattern, const string& channel, const string& message)
 {
@@ -58,9 +64,10 @@ bool Sentinel::discover_master(pair<string, int>& addr, string& url)
     for (vector<string>::iterator it = urls_.begin(); it != urls_.end(); ++it)
     {
         url = *it;
-        if (conn_.connect(url))
+        Connection conn;
+        if (conn.connect(url))
         {
-            if (get_master_address(addr))
+            if (get_master_address(conn, addr))
             {
                 succ = true;
                 // give priority to the replying Sentinel
@@ -74,11 +81,11 @@ bool Sentinel::discover_master(pair<string, int>& addr, string& url)
     return succ;
 }
 
-bool Sentinel::get_master_address(pair<string, int>& addr)
+bool Sentinel::get_master_address(Connection& conn, pair<string, int>& addr)
 {
     MakeCmd cmd("SENTINEL");
     cmd << "get-master-addr-by-name" << master_name_;
-    redisReply* reply(conn_.send_command(cmd));
+    redisReply* reply(conn.send_command(cmd));
 
     string_array address;
     try {

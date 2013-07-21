@@ -18,7 +18,7 @@ public:
     bool start_client_connect();
 
     bool discover_master(pair<string, int>& addr, string& sentinel_url);
-    bool get_master_address(pair<string, int>& addr);
+    bool get_master_address(Connection& conn, pair<string, int>& addr);
     void subscribe_sentinel_notification(const string& url);
     void start_monitor_timer();
     void check_master();
@@ -33,7 +33,6 @@ private:
     int db_;
 
     Client* client_;
-    Connection conn_;
     Subscriber sentinel_subscriber_;
 };
 
