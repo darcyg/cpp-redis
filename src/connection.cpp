@@ -41,6 +41,7 @@ void Connection::disconnect()
 {
     if (context_)
     {
+        quit();
         redisFree(context_);
         context_ = NULL;
     }
@@ -75,6 +76,9 @@ bool Connection::select(const int db)
 
 bool Connection::quit()
 {
+    redisReply* reply = (redisReply*)redisCommand(context_,  "QUIT");
+    if (reply != NULL)
+        recv_ok_reply(reply);
     return true;
 }
 
