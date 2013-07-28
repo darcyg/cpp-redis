@@ -1,0 +1,2 @@
+These configuration were used to test sentinel function.
+To start Redis sentinel cluster, please run supervisord(http://supervisord.org/) command in this directory.
