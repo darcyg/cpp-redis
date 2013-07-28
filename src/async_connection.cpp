@@ -73,7 +73,7 @@ void AsyncConnection::on_connect(int status)
 {
     if (status != REDIS_OK)
     {
-        cout << "Error: " << async_context_->errstr << endl;
+        cout << "Connected error: " << async_context_->errstr << endl;
         return;
     }
     cout << "Connected...\n";
@@ -83,10 +83,13 @@ void AsyncConnection::on_disconnect(int status)
 {
     if (status != REDIS_OK) 
     {
-        cout << "Error: " << async_context_->errstr << endl;
-        return;
+        cout << "Disconnected error: " << endl;
+        if (async_context_->errstr)
+            cout << async_context_->errstr << endl;
     }
-    cout << "Disconnected...\n";
+    else
+        cout << "Disconnected succ...\n";
+    return;
 }
 
 }

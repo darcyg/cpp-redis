@@ -6,11 +6,14 @@
 
 void ping_callback(redisAsyncContext *ac, void* reply, void* privatedata)
 {
-    (void)ac;
     (void)privatedata;
 
     redisReply* r = (redisReply*)(reply);
     cout << r->str << endl;
+
+    redis::AsyncConnection* conn = (redis::AsyncConnection*) (ac->data);
+    conn->disconnect();
+
     return;
 }
 
