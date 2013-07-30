@@ -17,6 +17,7 @@ public:
 
     int connect(const string& host, const int port, const int db = 0);
     int connect(const string& url);
+    int reconnect();
     void disconnect();
 
     void on_connect(int status);
@@ -28,7 +29,16 @@ private:
     redisAsyncContext* async_context_;
     string host_;
     int port_;
-    int db_; 
+    int db_;
+
+    enum connection_status {
+        DISCONNECTED,
+        CONNECTING,
+        CONNECTED,
+        DISCONNECTING,
+    };
+
+    connection_status status_;
 };
 
 }

@@ -31,9 +31,7 @@ public:
     void subscribe(const Args & ... args)
     {
         string_array channels = { args... };
-        MakeCmd cmd("SUBSCRIBE");
-        cmd << channels;
-        async_conn_->send_command(cmd, sub_callback, this);
+        subscribe(channels);
     }
 
     template<typename ... Args>
@@ -49,9 +47,7 @@ public:
     void psubscribe(const Args & ... args)
     {
         string_array patterns = { args... };
-        MakeCmd cmd("PSUBSCRIBE");
-        cmd << patterns;
-        async_conn_->send_command(cmd, sub_callback, this);
+        psubscribe(patterns);
     }
 
     template<typename ... Args>
@@ -65,6 +61,21 @@ public:
 
 public:
     static void sub_callback(redisAsyncContext *ac, void* reply, void* privatedata);
+
+private:
+    void subscribe(const string_array& channels)
+    {
+        MakeCmd cmd("SUBSCRIBE");
+        cmd << channels;
+        async_conn_->send_command(cmd, sub_callback, this);
+    }
+
+    void psubscribe(const string_array& patterns)
+    {
+        MakeCmd cmd("PSUBSCRIBE");
+        cmd << patterns;
+        async_conn_->send_command(cmd, sub_callback, this);
+    }
 
 private:
     AsyncConnection* async_conn_;

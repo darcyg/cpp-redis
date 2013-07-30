@@ -1,6 +1,8 @@
 #ifndef PIPELINE_HPP
 #define PIPELINE_HPP
 
+#include <tuple>
+
 namespace redis {
 
 class Pipeline {

@@ -26,7 +26,14 @@ int Subscriber::connect(const string& url)
 
 int Subscriber::reconnect()
 {
-    // reconnect and re-subscribe all channels & patterns
+    if (async_conn_->reconnect() != 0)
+        return -1;
+
+    string_array channels(channels_.begin(), channels_.end());
+    string_array patterns(patterns_.begin(), patterns_.end());
+    subscribe(channels);
+    psubscribe(patterns);
+
     return 0;
 }
 

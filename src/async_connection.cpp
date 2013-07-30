@@ -22,10 +22,13 @@ static void disconnect_callback(const redisAsyncContext *ac, int status)
 AsyncConnection::AsyncConnection()
     : async_context_(NULL)
 {
+    status_ = DISCONNECTED;
 }
 
 AsyncConnection::~AsyncConnection()
 {
+    if (status_ == CONNECTED)
+        disconnect();
 }
 
 int AsyncConnection::connect(const string& host, const int port, const int db)
@@ -38,12 +41,27 @@ int AsyncConnection::connect(const string& host, const int port, const int db)
         return -1;
     }
 
+    host_ = host;
+    port_ = port;
+    db_ = db;
+
     AsyncService::instance().attach(async_context_);
 
     redisAsyncSetConnectCallback(async_context_, connect_callback);
     redisAsyncSetDisconnectCallback(async_context_, disconnect_callback);
 
     return 0;
+}
+
+int AsyncConnection::reconnect()
+{
+    if (status_ == DISCONNECTED)
+    {
+        connect(host_, port_, db_);
+        return 0;
+    }
+
+    return -1;
 }
 
 int AsyncConnection::connect(const string& url)
@@ -60,6 +78,7 @@ int AsyncConnection::connect(const string& url)
 
 void AsyncConnection::disconnect()
 {
+    status_ = DISCONNECTING;
     redisAsyncDisconnect(async_context_);
 }
 
@@ -77,6 +96,7 @@ void AsyncConnection::on_connect(int status)
         return;
     }
     cout << "Connected...\n";
+    status_ = CONNECTED;
 }
 
 void AsyncConnection::on_disconnect(int status)
@@ -89,6 +109,7 @@ void AsyncConnection::on_disconnect(int status)
     }
     else
         cout << "Disconnected succ...\n";
+    status_ = DISCONNECTED;
     return;
 }
 
