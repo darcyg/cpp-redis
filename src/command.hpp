@@ -46,33 +46,18 @@ public:
         args_.clear();
     }
 
+    template <typename T>
+    inline MakeCmd& operator << (const T& data)
+    {
+        ostringstream oss;
+        oss << data;
+        args_.push_back(oss.str());
+        return *this;
+    }
+
     inline MakeCmd& operator << (const string& data)
     {
         args_.push_back(data);
-        return *this;
-    }
-
-    inline MakeCmd& operator << (const int& data) 
-    {
-        ostringstream oss;
-        oss << data;
-        args_.push_back(oss.str());
-        return *this;
-    }
-
-    inline MakeCmd& operator << (const unsigned int& data) 
-    {
-        ostringstream oss;
-        oss << data;
-        args_.push_back(oss.str());
-        return *this;
-    }
-
-    inline MakeCmd& operator << (const float& data)
-    {
-        ostringstream oss;
-        oss << data;
-        args_.push_back(oss.str());
         return *this;
     }
 
