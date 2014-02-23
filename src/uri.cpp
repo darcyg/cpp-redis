@@ -53,7 +53,7 @@ bool URI::parse(const string& url, URI& uri)
     if (pos == string::npos)
         return false;
     uri.host = netloc.substr(0, pos);
-    uri.port = atoi(netloc.substr(pos + 1).c_str());
+    uri.port = stoi(netloc.substr(pos + 1));
 
     // get db
     if (!remain.empty())
@@ -68,7 +68,7 @@ bool URI::parse(const string& url, URI& uri)
         if (path.empty())
             uri.db = 0;
         else
-            uri.db = atoi(path.c_str());
+            uri.db = stoi(path);
     }
 
     return true;
